@@ -5,6 +5,7 @@
 
 #include <cmath>
 #include <cstdio>
+#include <stack>
 #include <stdexcept>
 #include <vector>
 
@@ -38,6 +39,8 @@ public:
 private:
 
     Graph mGraph;
+    std::stack<Graph> mHistory;
+
     Vertex *mSelected = nullptr;
 
     SDL_Window *mWindow = nullptr;
@@ -49,12 +52,14 @@ private:
 
     bool onUpdateHandler();
     void onClickHandler(const SDL_MouseButtonEvent &button);
+    void onDragHandler(const SDL_MouseButtonEvent &button, const SDL_MouseMotionEvent &motion);
     void onKeyHandler(const SDL_Keysym &keysym);
 
     Graph::iterator findExistVertex(int x, int y);
     std::vector<Edge>::iterator findExistEdge(Vertex *source, Vertex *destination);
 
     Vertex *leftButtonClickHandler(Graph::iterator vertexIt, int mouseX, int mouseY);
+    Vertex *leftButtonDragHandler(int mouseX, int mouseY);
     Vertex *rightButtonClickHandler(Graph::iterator vertexIt, int mouseX, int mouseY);
 };
 

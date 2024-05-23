@@ -64,6 +64,12 @@ void App::onClickHandler(const SDL_MouseButtonEvent &button)
     }
 }
 
+void App::onDragHandler(const SDL_MouseButtonEvent &button, const SDL_MouseMotionEvent &motion)
+{
+    if(button.button == SDL_BUTTON_LEFT)
+        mSelected = leftButtonDragHandler(motion.x, motion.y);
+}
+
 void App::onKeyHandler(const SDL_Keysym &keysym)
 {
     switch (keysym.sym) {
@@ -74,6 +80,12 @@ void App::onKeyHandler(const SDL_Keysym &keysym)
     case 'd': mXOffset -= 5; break;
     case 'z': ++mScaleCoeffitient; break;
     case 'x': --mScaleCoeffitient; break;
+    case 'c':
+        if(mHistory.size() > 1) {
+            mSelected = nullptr;
+            mHistory.pop();
+            mGraph = mHistory.top();
+        } break;
     }
     std::cout << mXOffset << " " << mYOffset << std::endl;
 }
@@ -98,8 +110,10 @@ int App::run(int fps)
                 break;
             else if(event.type == SDL_MOUSEBUTTONUP)
                 onClickHandler(event.button);
-            else if(event.type == SDL_KEYUP)
+            else if(event.type == SDL_KEYDOWN)
                 onKeyHandler(event.key.keysym);
+            else if(event.type == SDL_MOUSEMOTION)
+                onDragHandler(event.button, event.motion);
         }
 
         dt = float(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - t1).count()) / 100.f;
@@ -139,25 +153,37 @@ Vertex *App::leftButtonClickHandler(Graph::iterator vertexIt, int mouseX, int mo
     if(vertexIt != mGraph.end()) {
         return &*vertexIt;
     } else if(vertexIt == mGraph.end() && mSelected != nullptr) {
+        auto selectedIt = findExistVertex(mSelected->x, mSelected->y);
         Vertex newVertex {
-                         {{mSelected->x, mSelected->y}},
+                         {{mSelected->x, mSelected->y, int(std::distance(mGraph.begin(), selectedIt))}},
                          (mouseX - mXOffset) / mScaleCoeffitient,
                          (mouseY - mYOffset) / mScaleCoeffitient};
-        Edge newEdge {
-            newVertex.x,
-            newVertex.y
-        };
-        int _x = mSelected->x, _y = mSelected->y;
-
-        mSelected->edges.push_back(newEdge);
+        mSelected->edges.push_back({newVertex.x, newVertex.y, int(mGraph.size())});
         mGraph.push_back(newVertex);
-        Vertex *newSelected = &*std::find_if(mGraph.begin(), mGraph.end(), [&](const Vertex &v){
-            return v.x == _x && v.y == _y;
-        });
-        newSelected->edges.back().nextVId = std::distance(mGraph.begin(), mGraph.end() - 1);
-        return newSelected;
+        mHistory.push(mGraph);
+        return &mGraph.back();
     }
     return nullptr;
+}
+
+Vertex *App::leftButtonDragHandler(int mouseX, int mouseY)
+{
+    if(mSelected != nullptr) {
+        int _x = mSelected->x;
+        int _y = mSelected->y;
+        mSelected->x = (mouseX - mXOffset) / mScaleCoeffitient;
+        mSelected->y = (mouseY - mYOffset) / mScaleCoeffitient;
+        for(auto &edge: mSelected->edges) {
+            auto destVrtx = &mGraph[edge.nextVId];
+            for(auto &destEdge: destVrtx->edges) {
+                if(destEdge.x == _x && destEdge.y == _y) {
+                    destEdge.x = (mouseX - mXOffset) / mScaleCoeffitient;
+                    destEdge.y = (mouseY - mYOffset) / mScaleCoeffitient;
+                }
+            }
+        }
+    }
+    return mSelected;
 }
 
 Vertex *App::rightButtonClickHandler(Graph::iterator vertexIt, int mouseX, int mouseY)
@@ -176,6 +202,7 @@ Vertex *App::rightButtonClickHandler(Graph::iterator vertexIt, int mouseX, int m
 
             if(edgeIt == mSelected->edges.end())
                 mSelected->edges.push_back({vertexIt->x, vertexIt->y, int(std::distance(mGraph.begin(), vertexIt))});
+            mHistory.push(mGraph);
             return mSelected;
         }
     }
