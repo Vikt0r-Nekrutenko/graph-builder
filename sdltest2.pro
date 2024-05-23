@@ -9,4 +9,8 @@ INCLUDEPATH += $$PWD/../../../../../SDL2-2.30.3/x86_64-w64-mingw32/include
 DEPENDPATH += $$PWD/../../../../../SDL2-2.30.3/x86_64-w64-mingw32/include
 
 SOURCES += \
+        app.cpp \
         main.cpp
+
+HEADERS += \
+    app.hpp
