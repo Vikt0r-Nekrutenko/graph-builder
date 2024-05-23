@@ -34,16 +34,7 @@ App::~App()
 
 bool App::onUpdateHandler()
 {
-    SDL_UpdateWindowSurface(mWindow);
-
-    SDL_Rect bgDestinationRect {
-        (-(VertexRectSize >> 1))+2 + mXOffset,
-        (-(VertexRectSize >> 1))+2 + mYOffset,
-        bgSourceRect.w * mScaleCoeffitient,
-        bgSourceRect.h * mScaleCoeffitient
-    };
-    SDL_RenderCopy(mRenderer, mBackground, &bgSourceRect, &bgDestinationRect);
-
+    drawBackground(mRenderer, mBackground, mScaleCoeffitient, mXOffset, mYOffset);
     drawGraph(mRenderer, mGraph, mScaleCoeffitient, mXOffset, mYOffset);
 
     if(mSelected != nullptr) {
@@ -220,4 +211,18 @@ void drawSelectedVertex(SDL_Renderer *renderer, const Vertex *selected, int scal
                            edge.x * scaleCoeffitient + xOffset,
                            edge.y * scaleCoeffitient + yOffset);
     }
+}
+
+void drawBackground(SDL_Renderer *renderer, SDL_Texture *texture, int scaleCoeffitient, int xOffset, int yOffset)
+{
+    // SDL_UpdateWindowSurface(mWindow);
+
+    SDL_Rect bgDestinationRect {
+        (-(VertexRectSize >> 1))+2 + xOffset,
+        (-(VertexRectSize >> 1))+2 + yOffset,
+        bgSourceRect.w * scaleCoeffitient,
+        bgSourceRect.h * scaleCoeffitient
+    };
+    SDL_RenderCopy(renderer, texture, &bgSourceRect, &bgDestinationRect);
+
 }
