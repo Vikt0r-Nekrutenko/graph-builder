@@ -1,4 +1,5 @@
 #include "app.hpp"
+#include <algorithm>
 #include <chrono>
 #include <iostream>
 #include <string>
@@ -11,9 +12,9 @@ App::App()
     mWindow = SDL_CreateWindow("", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WindowWidth, WindowHeight, 0);
     mRenderer = SDL_CreateRenderer(mWindow, -1, SDL_RENDERER_ACCELERATED);
 
-    mGraph.push_back({{{20,20,1}}, 10,10});
+    mGraph.push_back({{{30,30,1}}, 10,10});
     mGraph.push_back({{{10,10,0}}, 30,30});
-    mSelected = &mGraph.back();
+
 }
 
 App::~App()
@@ -35,7 +36,19 @@ bool App::onUpdateHandler()
 
 void App::onClickHandler(const SDL_MouseButtonEvent &button)
 {
+    auto vertexIt = findExistVertex(button.x, button.y);
 
+    switch(button.button) {
+    case SDL_BUTTON_LEFT: mSelected = leftButtonClickHandler(vertexIt, button.x, button.y); break;
+    case SDL_BUTTON_RIGHT: mSelected = rightButtonClickHandler(vertexIt, button.x, button.y); break;
+    }
+
+    if(mSelected != nullptr) {
+        std::cout << mGraph.size() << " " << mSelected->edges.size() << std::endl;
+        for(const auto &e: mSelected->edges) {
+            std::cout << "\t" << mSelected->x << ":" << mSelected->y << "-" << e.x << ":" << e.y << std::endl;
+        }
+    }
 }
 
 void App::onKeyHandler(const SDL_Keysym &keysym)
@@ -91,6 +104,59 @@ int App::run(int fps)
         }
     }
     return 0;
+}
+
+Graph::iterator App::findExistVertex(int x, int y)
+{
+    return std::find_if(mGraph.begin(), mGraph.end(), [&](const Vertex &v){
+        return std::sqrt(std::pow(v.x * mScaleCoeffitient + mXOffset - x, 2.f) +
+                         std::pow(v.y * mScaleCoeffitient + mYOffset - y, 2.f)) < (VertexRectSize >> 1) + 1.f;
+    });
+}
+
+std::vector<Edge>::iterator App::findExistEdge(Vertex *source, Vertex *destination)
+{
+    return std::find_if(source->edges.begin(), source->edges.end(), [&](const Edge &e){
+        return e.x == destination->x && e.y == destination->y;
+    });
+}
+
+Vertex *App::leftButtonClickHandler(Graph::iterator vertexIt, int mouseX, int mouseY)
+{
+    if(vertexIt != mGraph.end()) {
+        return &*vertexIt;
+    } else if(vertexIt == mGraph.end() && mSelected != nullptr) {
+        Vertex newVertex {
+                         {{mSelected->x, mSelected->y}},
+                         (mouseX - mXOffset) / mScaleCoeffitient,
+                         (mouseY - mYOffset) / mScaleCoeffitient};
+        Edge newEdge { newVertex.x, newVertex.y };
+        int _x = mSelected->x, _y = mSelected->y;
+
+        mSelected->edges.push_back(newEdge);
+        mGraph.push_back(newVertex);
+        return &*std::find_if(mGraph.begin(), mGraph.end(), [&](const Vertex &v){ return v.x == _x && v.y == _y; });
+    }
+    return nullptr;
+}
+
+Vertex *App::rightButtonClickHandler(Graph::iterator vertexIt, int mouseX, int mouseY)
+{
+    if(mSelected != nullptr) {
+        if(vertexIt != mGraph.end() && mSelected != &*vertexIt) {
+            auto edgeIt = findExistEdge(&*vertexIt, mSelected);
+
+            if(edgeIt == vertexIt->edges.end())
+                vertexIt->edges.push_back({mSelected->x, mSelected->y});
+
+            edgeIt = findExistEdge(mSelected, &*vertexIt);
+
+            if(edgeIt == mSelected->edges.end())
+                mSelected->edges.push_back({vertexIt->x, vertexIt->y});
+            return mSelected;
+        }
+    }
+    return nullptr;
 }
 
 void drawGraph(SDL_Renderer *renderer, const Graph &graph, int scaleCoeffitient, int xOffset, int yOffset)

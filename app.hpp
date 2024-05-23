@@ -12,7 +12,7 @@
 #define WindowHeight 480
 
 typedef struct _Edge {
-    int x, y, nextVId;
+    int x = 0, y = 0, nextVId = 0;
 } Edge;
 
 typedef struct _Vertex {
@@ -32,9 +32,6 @@ public:
     App();
     ~App();
 
-    bool onUpdateHandler();
-    void onClickHandler(const SDL_MouseButtonEvent &button);
-    void onKeyHandler(const SDL_Keysym &keysym);
     int run(int fps);
 
 private:
@@ -47,6 +44,16 @@ private:
 
     int mScaleCoeffitient = 1, mXOffset = 0, mYOffset = 0;
     bool isContinue = true;
+
+    bool onUpdateHandler();
+    void onClickHandler(const SDL_MouseButtonEvent &button);
+    void onKeyHandler(const SDL_Keysym &keysym);
+
+    Graph::iterator findExistVertex(int x, int y);
+    std::vector<Edge>::iterator findExistEdge(Vertex *source, Vertex *destination);
+
+    Vertex *leftButtonClickHandler(Graph::iterator vertexIt, int mouseX, int mouseY);
+    Vertex *rightButtonClickHandler(Graph::iterator vertexIt, int mouseX, int mouseY);
 };
 
 #endif // APP_HPP
