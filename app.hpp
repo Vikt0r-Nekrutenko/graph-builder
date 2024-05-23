@@ -3,29 +3,23 @@
 
 #include "SDL2/SDL.h"
 
-#include <cmath>
-#include <cstdio>
 #include <stack>
-#include <stdexcept>
-#include <vector>
+
+#include "graph.hpp"
 
 #define WindowWidth 640
 #define WindowHeight 480
 
-typedef struct _Edge {
-    int x = 0, y = 0, nextVId = 0;
-} Edge;
-
 typedef struct _Vertex {
     std::vector<Edge> edges;
     int x, y;
-} Vertex;
+} VertexOld;
 
-using Graph = std::vector<Vertex>;
+using GraphOld = std::vector<VertexOld>;
 
 void drawBackground(SDL_Renderer *renderer, SDL_Texture *texture, int scaleCoeffitient, int xOffset, int yOffset);
-void drawGraph(SDL_Renderer *renderer, const Graph &graph, int scaleCoeffitient, int xOffset, int yOffset);
-void drawSelectedVertex(SDL_Renderer *renderer, const Vertex *selected, int scaleCoeffitient, int xOffset, int yOffset);
+void drawGraph(SDL_Renderer *renderer, const GraphOld &graph, int scaleCoeffitient, int xOffset, int yOffset);
+void drawSelectedVertex(SDL_Renderer *renderer, const VertexOld *selected, int scaleCoeffitient, int xOffset, int yOffset);
 
 class App
 {
@@ -38,10 +32,11 @@ public:
 
 private:
 
-    Graph mGraph;
-    std::stack<Graph> mHistory;
+    GraphOld mGraph;
+    Graph graph;
+    std::stack<GraphOld> mHistory;
 
-    Vertex *mSelected = nullptr;
+    VertexOld *mSelected = nullptr;
 
     SDL_Window *mWindow = nullptr;
     SDL_Renderer *mRenderer = nullptr;
@@ -55,12 +50,12 @@ private:
     void onDragHandler(const SDL_MouseButtonEvent &button, const SDL_MouseMotionEvent &motion);
     void onKeyHandler(const SDL_Keysym &keysym);
 
-    Graph::iterator findExistVertex(int x, int y);
-    std::vector<Edge>::iterator findExistEdge(Vertex *source, Vertex *destination);
+    GraphOld::iterator findExistVertex(int x, int y);
+    std::vector<Edge>::iterator findExistEdge(VertexOld *source, VertexOld *destination);
 
-    Vertex *leftButtonClickHandler(Graph::iterator vertexIt, int mouseX, int mouseY);
-    Vertex *leftButtonDragHandler(int mouseX, int mouseY);
-    Vertex *rightButtonClickHandler(Graph::iterator vertexIt, int mouseX, int mouseY);
+    VertexOld *leftButtonClickHandler(GraphOld::iterator vertexIt, int mouseX, int mouseY);
+    VertexOld *leftButtonDragHandler(int mouseX, int mouseY);
+    VertexOld *rightButtonClickHandler(GraphOld::iterator vertexIt, int mouseX, int mouseY);
 };
 
 #endif // APP_HPP
