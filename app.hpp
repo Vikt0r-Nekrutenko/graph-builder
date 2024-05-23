@@ -41,6 +41,7 @@ private:
 
     SDL_Window *mWindow = nullptr;
     SDL_Renderer *mRenderer = nullptr;
+    SDL_Texture *mBackground = nullptr;
 
     int mScaleCoeffitient = 1, mXOffset = 0, mYOffset = 0;
     bool isContinue = true;

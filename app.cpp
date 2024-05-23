@@ -6,19 +6,27 @@
 
 #define VertexRectSize 8
 
+static SDL_Rect bgSourceRect {0,0, 0,0};
+
 App::App()
 {
     SDL_Init(SDL_INIT_VIDEO);
     mWindow = SDL_CreateWindow("", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WindowWidth, WindowHeight, 0);
     mRenderer = SDL_CreateRenderer(mWindow, -1, SDL_RENDERER_ACCELERATED);
 
-    mGraph.push_back({{{30,30,1}}, 10,10});
-    mGraph.push_back({{{10,10,0}}, 30,30});
+    mGraph.push_back({{{87,55,1}}, 79,43});
+    mGraph.push_back({{{79,43,0}}, 87,55});
 
+    SDL_Surface* image = SDL_LoadBMP("minimap.bmp");
+    mBackground = SDL_CreateTextureFromSurface(mRenderer, image);
+    bgSourceRect.w = image->w;
+    bgSourceRect.h = image->h;
+    SDL_FreeSurface(image);
 }
 
 App::~App()
 {
+    SDL_DestroyTexture(mBackground);
     SDL_DestroyRenderer(mRenderer);
     SDL_DestroyWindow(mWindow);
     SDL_Quit();
@@ -26,6 +34,16 @@ App::~App()
 
 bool App::onUpdateHandler()
 {
+    SDL_UpdateWindowSurface(mWindow);
+
+    SDL_Rect bgDestinationRect {
+        (-(VertexRectSize >> 1))+2 + mXOffset,
+        (-(VertexRectSize >> 1))+2 + mYOffset,
+        bgSourceRect.w * mScaleCoeffitient,
+        bgSourceRect.h * mScaleCoeffitient
+    };
+    SDL_RenderCopy(mRenderer, mBackground, &bgSourceRect, &bgDestinationRect);
+
     drawGraph(mRenderer, mGraph, mScaleCoeffitient, mXOffset, mYOffset);
 
     if(mSelected != nullptr) {
@@ -39,8 +57,12 @@ void App::onClickHandler(const SDL_MouseButtonEvent &button)
     auto vertexIt = findExistVertex(button.x, button.y);
 
     switch(button.button) {
-    case SDL_BUTTON_LEFT: mSelected = leftButtonClickHandler(vertexIt, button.x, button.y); break;
-    case SDL_BUTTON_RIGHT: mSelected = rightButtonClickHandler(vertexIt, button.x, button.y); break;
+    case SDL_BUTTON_LEFT:
+        mSelected = leftButtonClickHandler(vertexIt, button.x, button.y);
+        break;
+    case SDL_BUTTON_RIGHT:
+        mSelected = rightButtonClickHandler(vertexIt, button.x, button.y);
+        break;
     }
 
     if(mSelected != nullptr) {
@@ -135,7 +157,9 @@ Vertex *App::leftButtonClickHandler(Graph::iterator vertexIt, int mouseX, int mo
 
         mSelected->edges.push_back(newEdge);
         mGraph.push_back(newVertex);
-        return &*std::find_if(mGraph.begin(), mGraph.end(), [&](const Vertex &v){ return v.x == _x && v.y == _y; });
+        return &*std::find_if(mGraph.begin(), mGraph.end(), [&](const Vertex &v){
+            return v.x == _x && v.y == _y;
+        });
     }
     return nullptr;
 }
