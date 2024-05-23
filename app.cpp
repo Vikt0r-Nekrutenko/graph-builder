@@ -1,13 +1,19 @@
 #include "app.hpp"
 #include <chrono>
+#include <iostream>
 #include <string>
 
+#define VertexRectSize 8
 
 App::App()
 {
     SDL_Init(SDL_INIT_VIDEO);
-    mWindow = SDL_CreateWindow("", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, 0);
+    mWindow = SDL_CreateWindow("", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WindowWidth, WindowHeight, 0);
     mRenderer = SDL_CreateRenderer(mWindow, -1, SDL_RENDERER_ACCELERATED);
+
+    mGraph.push_back({{{20,20,1}}, 10,10});
+    mGraph.push_back({{{10,10,0}}, 30,30});
+    mSelected = &mGraph.back();
 }
 
 App::~App()
@@ -19,6 +25,11 @@ App::~App()
 
 bool App::onUpdateHandler()
 {
+    drawGraph(mRenderer, mGraph, mScaleCoeffitient, mXOffset, mYOffset);
+
+    if(mSelected != nullptr) {
+        drawSelectedVertex(mRenderer, mSelected, mScaleCoeffitient, mXOffset, mYOffset);
+    }
     return isContinue;
 }
 
@@ -30,12 +41,15 @@ void App::onClickHandler(const SDL_MouseButtonEvent &button)
 void App::onKeyHandler(const SDL_Keysym &keysym)
 {
     switch (keysym.sym) {
-    case 'q':
-        isContinue = false;
-        break;
-    default:
-        break;
+    case 'q': isContinue = false; break;
+    case 'w': mYOffset += 5; break;
+    case 's': mYOffset -= 5; break;
+    case 'a': mXOffset += 5; break;
+    case 'd': mXOffset -= 5; break;
+    case 'z': ++mScaleCoeffitient; break;
+    case 'x': --mScaleCoeffitient; break;
     }
+    std::cout << mXOffset << " " << mYOffset << std::endl;
 }
 
 int App::run(int fps)
@@ -77,4 +91,43 @@ int App::run(int fps)
         }
     }
     return 0;
+}
+
+void drawGraph(SDL_Renderer *renderer, const Graph &graph, int scaleCoeffitient, int xOffset, int yOffset)
+{
+    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+    for(const auto &vertex: graph) {
+        SDL_Rect rect { vertex.x * scaleCoeffitient + xOffset - (VertexRectSize >> 1),
+                        vertex.y * scaleCoeffitient + yOffset - (VertexRectSize >> 1),
+            VertexRectSize,
+            VertexRectSize
+        };
+        SDL_RenderDrawRect(renderer, &rect);
+        for(const auto &edge: vertex.edges) {
+            SDL_RenderDrawLine(renderer,
+                               vertex.x * scaleCoeffitient + xOffset,
+                               vertex.y * scaleCoeffitient + yOffset,
+                               edge.x * scaleCoeffitient + xOffset,
+                               edge.y * scaleCoeffitient + yOffset);
+        }
+    }
+}
+
+void drawSelectedVertex(SDL_Renderer *renderer, const Vertex *selected, int scaleCoeffitient, int xOffset, int yOffset)
+{
+    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+    SDL_Rect rect {
+        selected->x * scaleCoeffitient + xOffset - (VertexRectSize >> 1),
+        selected->y * scaleCoeffitient + yOffset - (VertexRectSize >> 1),
+        VertexRectSize,
+        VertexRectSize
+    };
+    SDL_RenderDrawRect(renderer, &rect);
+    for(const auto &edge: selected->edges) {
+        SDL_RenderDrawLine(renderer,
+                           selected->x * scaleCoeffitient + xOffset,
+                           selected->y * scaleCoeffitient + yOffset,
+                           edge.x * scaleCoeffitient + xOffset,
+                           edge.y * scaleCoeffitient + yOffset);
+    }
 }
