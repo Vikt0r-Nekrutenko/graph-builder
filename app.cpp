@@ -59,7 +59,7 @@ void App::onClickHandler(const SDL_MouseButtonEvent &button)
     if(mSelected != nullptr) {
         std::cout << mGraph.size() << " " << mSelected->edges.size() << std::endl;
         for(const auto &e: mSelected->edges) {
-            std::cout << "\t" << mSelected->x << ":" << mSelected->y << "-" << e.x << ":" << e.y << std::endl;
+            std::cout << "\t" << mSelected->x << ":" << mSelected->y << "-" << e.x << ":" << e.y << "|" << e.nextVId << std::endl;
         }
     }
 }
@@ -143,14 +143,19 @@ Vertex *App::leftButtonClickHandler(Graph::iterator vertexIt, int mouseX, int mo
                          {{mSelected->x, mSelected->y}},
                          (mouseX - mXOffset) / mScaleCoeffitient,
                          (mouseY - mYOffset) / mScaleCoeffitient};
-        Edge newEdge { newVertex.x, newVertex.y };
+        Edge newEdge {
+            newVertex.x,
+            newVertex.y
+        };
         int _x = mSelected->x, _y = mSelected->y;
 
         mSelected->edges.push_back(newEdge);
         mGraph.push_back(newVertex);
-        return &*std::find_if(mGraph.begin(), mGraph.end(), [&](const Vertex &v){
+        Vertex *newSelected = &*std::find_if(mGraph.begin(), mGraph.end(), [&](const Vertex &v){
             return v.x == _x && v.y == _y;
         });
+        newSelected->edges.back().nextVId = std::distance(mGraph.begin(), mGraph.end() - 1);
+        return newSelected;
     }
     return nullptr;
 }
@@ -162,12 +167,15 @@ Vertex *App::rightButtonClickHandler(Graph::iterator vertexIt, int mouseX, int m
             auto edgeIt = findExistEdge(&*vertexIt, mSelected);
 
             if(edgeIt == vertexIt->edges.end())
-                vertexIt->edges.push_back({mSelected->x, mSelected->y});
+                vertexIt->edges.push_back({mSelected->x,
+                                           mSelected->y,
+                                           int(std::distance(mGraph.begin(), findExistVertex(mSelected->x, mSelected->y)))
+                });
 
             edgeIt = findExistEdge(mSelected, &*vertexIt);
 
             if(edgeIt == mSelected->edges.end())
-                mSelected->edges.push_back({vertexIt->x, vertexIt->y});
+                mSelected->edges.push_back({vertexIt->x, vertexIt->y, int(std::distance(mGraph.begin(), vertexIt))});
             return mSelected;
         }
     }
@@ -176,7 +184,7 @@ Vertex *App::rightButtonClickHandler(Graph::iterator vertexIt, int mouseX, int m
 
 void drawGraph(SDL_Renderer *renderer, const Graph &graph, int scaleCoeffitient, int xOffset, int yOffset)
 {
-    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     for(const auto &vertex: graph) {
         SDL_Rect rect { vertex.x * scaleCoeffitient + xOffset - (VertexRectSize >> 1),
                         vertex.y * scaleCoeffitient + yOffset - (VertexRectSize >> 1),
@@ -215,8 +223,6 @@ void drawSelectedVertex(SDL_Renderer *renderer, const Vertex *selected, int scal
 
 void drawBackground(SDL_Renderer *renderer, SDL_Texture *texture, int scaleCoeffitient, int xOffset, int yOffset)
 {
-    // SDL_UpdateWindowSurface(mWindow);
-
     SDL_Rect bgDestinationRect {
         (-(VertexRectSize >> 1))+2 + xOffset,
         (-(VertexRectSize >> 1))+2 + yOffset,
@@ -224,5 +230,4 @@ void drawBackground(SDL_Renderer *renderer, SDL_Texture *texture, int scaleCoeff
         bgSourceRect.h * scaleCoeffitient
     };
     SDL_RenderCopy(renderer, texture, &bgSourceRect, &bgDestinationRect);
-
 }
