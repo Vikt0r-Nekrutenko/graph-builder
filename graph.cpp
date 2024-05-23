@@ -54,10 +54,13 @@ std::vector<Edge>::iterator Vertex::findEdge(int x, int y)
 void Graph::addv(int x, int y)
 {
     auto vertex = findVertex(x, y);
-    if(vertex == end())
+    if(vertex == end()) {
         push_back({x, y});
-    else
+        mSelected = &back();
+    } else {
         std::cout << "Vertex: " << x << ":" << y << " does exist!" << std::endl;
+        mSelected = &*vertex;
+    }
 }
 
 void Graph::adde(int sx, int sy, int dx, int dy)
@@ -101,6 +104,9 @@ void Graph::draw(SDL_Renderer *renderer, int scale, int ox, int oy, int r, int g
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     for(const auto &vertex: *this)
         vertex.draw(renderer, scale, ox, oy, r, g, b);
+    if(mSelected != nullptr) {
+        mSelected->draw(renderer, scale, ox, oy, 255, g, b);
+    }
 }
 
 std::vector<Vertex>::iterator Graph::findVertex(int x, int y)
