@@ -53,9 +53,9 @@ App::~App()
 
 bool App::onUpdateHandler()
 {
-    drawBackground(mRenderer, mBackground, mScaleCoeffitient, mXOffset, mYOffset);
+    drawBackground(mScaleCoeffitient, mXOffset, mYOffset);
 
-    graph.draw(mRenderer, mScaleCoeffitient, mXOffset, mYOffset, 0, 0, 0);
+    mGraph.draw(mRenderer, mScaleCoeffitient, mXOffset, mYOffset, 0, 0, 0);
 
     return isContinue;
 }
@@ -67,19 +67,19 @@ void App::onClickHandler(const SDL_MouseButtonEvent &button)
 
     switch(button.button) {
     case SDL_BUTTON_LEFT:
-        graph.selectv(mx, my);
-        if(!graph.isVertexSelected()) {
-            mHistory.push(graph);
-            graph.addv(mx, my);
-            graph.selectv(mx, my);
+        mGraph.selectv(mx, my);
+        if(!mGraph.isVertexSelected()) {
+            mHistory.push(mGraph);
+            mGraph.addv(mx, my);
+            mGraph.selectv(mx, my);
         }
         break;
     case SDL_BUTTON_RIGHT:
-        if(graph.isVertexSelected()) {
-            mHistory.push(graph);
-            graph.sadd(mx, my);
+        if(mGraph.isVertexSelected()) {
+            mHistory.push(mGraph);
+            mGraph.sadd(mx, my);
         }
-        graph.selectv(mx, my);
+        mGraph.selectv(mx, my);
 
         break;
     }
@@ -91,8 +91,8 @@ void App::onDragHandler(const SDL_MouseButtonEvent &button, const SDL_MouseMotio
     int my = (motion.y - mYOffset) / mScaleCoeffitient;
 
     if(button.button == SDL_BUTTON_LEFT)
-        if(graph.isVertexSelected())
-            graph.smove(mx, my);
+        if(mGraph.isVertexSelected())
+            mGraph.smove(mx, my);
 }
 
 void App::onKeyHandler(const SDL_Keysym &keysym)
@@ -107,12 +107,23 @@ void App::onKeyHandler(const SDL_Keysym &keysym)
     case 'x': --mScaleCoeffitient; break;
     case 'c':
         if(!mHistory.empty()) {
-            graph = mHistory.top();
-            graph.deselectv();
+            mGraph = mHistory.top();
+            mGraph.deselectv();
             mHistory.pop();
         } break;
     }
     std::cout << mXOffset << " " << mYOffset << std::endl;
+}
+
+void App::drawBackground(int scaleCoeffitient, int xOffset, int yOffset)
+{
+    SDL_Rect bgDestinationRect {
+        (-(VertexRectSize >> 1))+2 + xOffset,
+        (-(VertexRectSize >> 1))+2 + yOffset,
+        bgSourceRect.w * scaleCoeffitient,
+        bgSourceRect.h * scaleCoeffitient
+    };
+    SDL_RenderCopy(mRenderer, mBackground, &bgSourceRect, &bgDestinationRect);
 }
 
 int App::run(int fps)
@@ -156,15 +167,4 @@ int App::run(int fps)
         }
     }
     return 0;
-}
-
-void drawBackground(SDL_Renderer *renderer, SDL_Texture *texture, int scaleCoeffitient, int xOffset, int yOffset)
-{
-    SDL_Rect bgDestinationRect {
-        (-(VertexRectSize >> 1))+2 + xOffset,
-        (-(VertexRectSize >> 1))+2 + yOffset,
-        bgSourceRect.w * scaleCoeffitient,
-        bgSourceRect.h * scaleCoeffitient
-    };
-    SDL_RenderCopy(renderer, texture, &bgSourceRect, &bgDestinationRect);
 }

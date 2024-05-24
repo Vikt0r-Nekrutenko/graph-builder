@@ -10,15 +10,6 @@
 #define WindowWidth 640
 #define WindowHeight 480
 
-typedef struct _Vertex {
-    std::vector<Edge> edges;
-    int x, y;
-} VertexOld;
-
-using GraphOld = std::vector<VertexOld>;
-
-void drawBackground(SDL_Renderer *renderer, SDL_Texture *texture, int scaleCoeffitient, int xOffset, int yOffset);
-
 class App
 {
 public:
@@ -30,7 +21,7 @@ public:
 
 private:
 
-    Graph graph;
+    Graph mGraph;
     std::stack<Graph> mHistory;
 
     SDL_Window *mWindow = nullptr;
@@ -44,6 +35,7 @@ private:
     void onClickHandler(const SDL_MouseButtonEvent &button);
     void onDragHandler(const SDL_MouseButtonEvent &button, const SDL_MouseMotionEvent &motion);
     void onKeyHandler(const SDL_Keysym &keysym);
+    void drawBackground(int scaleCoeffitient, int xOffset, int yOffset);
 };
 
 #endif // APP_HPP
