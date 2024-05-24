@@ -44,19 +44,19 @@ void App::onClickHandler(const SDL_MouseButtonEvent &button)
 
     switch(button.button) {
     case SDL_BUTTON_LEFT:
-        mGraph.selectv(mx, my);
+        mGraph.selectVertex(mx, my);
         if(!mGraph.isVertexSelected()) {
             mHistory.push(mGraph);
-            mGraph.addv(mx, my);
-            mGraph.selectv(mx, my);
+            mGraph.addNewVertex(mx, my);
+            mGraph.selectVertex(mx, my);
         }
         break;
     case SDL_BUTTON_RIGHT:
         if(mGraph.isVertexSelected()) {
             mHistory.push(mGraph);
-            mGraph.sadd(mx, my);
+            mGraph.addNewVertexToSelected(mx, my);
         }
-        mGraph.selectv(mx, my);
+        mGraph.selectVertex(mx, my);
 
         break;
     }
@@ -69,7 +69,7 @@ void App::onDragHandler(const SDL_MouseButtonEvent &button, const SDL_MouseMotio
 
     if(button.button == SDL_BUTTON_LEFT)
         if(mGraph.isVertexSelected())
-            mGraph.smove(mx, my);
+            mGraph.moveSelected(mx, my);
 }
 
 void App::onKeyHandler(const SDL_Keysym &keysym)
@@ -85,7 +85,7 @@ void App::onKeyHandler(const SDL_Keysym &keysym)
     case 'c':
         if(!mHistory.empty()) {
             mGraph = mHistory.top();
-            mGraph.deselectv();
+            mGraph.deselectVertex();
             mHistory.pop();
         } break;
     }

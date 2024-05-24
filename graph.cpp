@@ -7,55 +7,6 @@
 #include <iostream>
 
 
-Vertex::Vertex(int x, int y) : mX{x}, mY{y} {}
-
-void Vertex::print() const
-{
-    std::cout << "Vertex [" << mX << ":" << mY << "]. Size: " << size() << std::endl;
-    for(const auto &edge: *this){
-        std::cout << "\t" << mX << ":" << mY << " - " << edge.x << ":" << edge.y << " | " << edge.nextVId << std::endl;
-    }
-}
-
-void Vertex::adde(int x, int y, int id)
-{
-    auto edge = findEdge(x, y);
-    if(edge != end())
-        std::cout << "Edge does exist!" << std::endl;
-    else
-        push_back({x, y, id});
-}
-
-void Vertex::move(int dx, int dy)
-{
-    mX = dx;
-    mY = dy;
-}
-
-void Vertex::draw(SDL_Renderer *renderer, int scale, int ox, int oy, int r, int g, int b) const
-{
-    SDL_SetRenderDrawColor(renderer, r, g, b, 255);
-    SDL_Rect rect {
-        mX * scale + ox - (VertexRectSize >> 1),
-        mY * scale + oy - (VertexRectSize >> 1),
-        VertexRectSize,
-        VertexRectSize
-    };
-    SDL_RenderDrawRect(renderer, &rect);
-    for(const auto &edge: *this) {
-        SDL_RenderDrawLine(renderer,
-                           mX * scale + ox,
-                           mY * scale + oy,
-                           edge.x * scale + ox,
-                           edge.y * scale + oy);
-    }
-}
-
-std::vector<Edge>::iterator Vertex::findEdge(int x, int y)
-{
-    return std::find_if(begin(), end(), [&](const Edge &e){ return e.x == x && e.y == y; });
-}
-
 Graph::Graph()
 {
     std::ifstream edgesFile("edges.txt");
@@ -70,7 +21,7 @@ Graph::Graph()
             edges.push_back({item.sx, item.sy, item.dx, item.dy, item.id});
             auto vertex = findVertex(item.sx, item.sy);
             if(vertex == end())
-                addv(item.sx, item.sy);
+                addNewVertex(item.sx, item.sy);
         }
         edgesFile.close();
     }
@@ -91,7 +42,7 @@ Graph::~Graph()
     edgesFile.close();
 }
 
-void Graph::addv(int x, int y)
+void Graph::addNewVertex(int x, int y)
 {
     auto vertex = findVertex(x, y);
     if(vertex == end()) {
@@ -101,7 +52,7 @@ void Graph::addv(int x, int y)
     }
 }
 
-void Graph::adde(int sx, int sy, int dx, int dy)
+void Graph::addNewEdge(int sx, int sy, int dx, int dy)
 {
     auto svertex = findVertex(sx, sy);
     auto dvertex = findVertex(dx, dy);
@@ -113,7 +64,7 @@ void Graph::adde(int sx, int sy, int dx, int dy)
     }
 }
 
-void Graph::movev(int sx, int sy, int dx, int dy)
+void Graph::moveVertex(int sx, int sy, int dx, int dy)
 {
     auto vertex = findVertex(sx, sy);
     if(vertex == end())
@@ -148,34 +99,36 @@ void Graph::draw(SDL_Renderer *renderer, int scale, int ox, int oy, int r, int g
     }
 }
 
-void Graph::selectv(int x, int y)
+void Graph::selectVertex(int x, int y)
 {
     auto vertex = findVertex(x, y);
-    if(vertex != end())
+    if(vertex != end()) {
         mSelected = &*vertex;
+        mSelected->print();
+    }
     else
         mSelected = nullptr;
 }
 
-void Graph::deselectv()
+void Graph::deselectVertex()
 {
     mSelected = nullptr;
 }
 
-void Graph::sadd(int dx, int dy)
+void Graph::addNewVertexToSelected(int dx, int dy)
 {
     auto vertex = findVertex(dx, dy);
     if(vertex != end())
-        adde(mSelected->mX, mSelected->mY, dx, dy);
+        addNewEdge(mSelected->mX, mSelected->mY, dx, dy);
     else {
-        addv(dx, dy);
-        adde(mSelected->mX, mSelected->mY, dx, dy);
+        addNewVertex(dx, dy);
+        addNewEdge(mSelected->mX, mSelected->mY, dx, dy);
     }
 }
 
-void Graph::smove(int dx, int dy)
+void Graph::moveSelected(int dx, int dy)
 {
-    movev(mSelected->mX, mSelected->mY, dx, dy);
+    moveVertex(mSelected->mX, mSelected->mY, dx, dy);
 }
 
 std::vector<Vertex>::iterator Graph::findVertex(int x, int y)

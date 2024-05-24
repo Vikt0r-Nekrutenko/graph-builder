@@ -11,8 +11,10 @@ DEPENDPATH += $$PWD/../../../../../SDL2-2.30.3/x86_64-w64-mingw32/include
 SOURCES += \
         app.cpp \
         graph.cpp \
-        main.cpp
+        main.cpp \
+        vertex.cpp
 
 HEADERS += \
     app.hpp \
-    graph.hpp
+    graph.hpp \
+    vertex.hpp
