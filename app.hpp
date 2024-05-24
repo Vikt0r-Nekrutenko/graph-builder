@@ -18,8 +18,6 @@ typedef struct _Vertex {
 using GraphOld = std::vector<VertexOld>;
 
 void drawBackground(SDL_Renderer *renderer, SDL_Texture *texture, int scaleCoeffitient, int xOffset, int yOffset);
-void drawGraph(SDL_Renderer *renderer, const GraphOld &graph, int scaleCoeffitient, int xOffset, int yOffset);
-void drawSelectedVertex(SDL_Renderer *renderer, const VertexOld *selected, int scaleCoeffitient, int xOffset, int yOffset);
 
 class App
 {
@@ -32,11 +30,8 @@ public:
 
 private:
 
-    GraphOld mGraph;
     Graph graph;
-    std::stack<GraphOld> mHistory;
-
-    VertexOld *mSelected = nullptr;
+    std::stack<Graph> mHistory;
 
     SDL_Window *mWindow = nullptr;
     SDL_Renderer *mRenderer = nullptr;
@@ -49,13 +44,6 @@ private:
     void onClickHandler(const SDL_MouseButtonEvent &button);
     void onDragHandler(const SDL_MouseButtonEvent &button, const SDL_MouseMotionEvent &motion);
     void onKeyHandler(const SDL_Keysym &keysym);
-
-    GraphOld::iterator findExistVertex(int x, int y);
-    std::vector<Edge>::iterator findExistEdge(VertexOld *source, VertexOld *destination);
-
-    VertexOld *leftButtonClickHandler(GraphOld::iterator vertexIt, int mouseX, int mouseY);
-    VertexOld *leftButtonDragHandler(int mouseX, int mouseY);
-    VertexOld *rightButtonClickHandler(GraphOld::iterator vertexIt, int mouseX, int mouseY);
 };
 
 #endif // APP_HPP
