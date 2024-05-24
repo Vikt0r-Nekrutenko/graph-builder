@@ -1,9 +1,6 @@
 #ifndef GRAPH_HPP
 #define GRAPH_HPP
 
-#include <algorithm>
-#include <cmath>
-#include <iostream>
 #include <vector>
 
 #define VertexRectSize 8
@@ -40,6 +37,10 @@ private:
 class Graph : private std::vector<Vertex>
 {
 public:
+
+    Graph();
+
+    ~Graph();
 
     void addv(int x, int y);
 

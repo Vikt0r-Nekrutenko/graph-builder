@@ -1,10 +1,9 @@
 #include "app.hpp"
-#include <algorithm>
 #include <chrono>
-#include <cmath>
+
 #include <iostream>
 #include <string>
-#include <fstream>
+
 
 static SDL_Rect bgSourceRect {0,0, 0,0};
 
@@ -19,22 +18,6 @@ App::App()
     bgSourceRect.w = image->w;
     bgSourceRect.h = image->h;
     SDL_FreeSurface(image);
-
-    // std::ifstream edgesFile("edges.txt");
-    // if(edgesFile.is_open()) {
-    //     while(edgesFile.eof() == false) {
-    //         int sx = -1, sy = -1, dx = -1, dy = -1, id = -1;
-    //         edgesFile >> sx >> sy >> dx >> dy >> id;
-    //         if(sx == -1 || sy == -1 || dx == -1 || dy == -1 || id == -1)
-    //             continue;
-    //         auto vertex = findExistVertex(sx, sy);
-    //         if(vertex == mGraph.end())
-    //             mGraph.push_back({{{dx, dy, id}}, sx, sy});
-    //         else
-    //             vertex->edges.push_back({dx, dy, id});
-    //     }
-    //     edgesFile.close();
-    // }
 }
 
 App::~App()
@@ -43,12 +26,6 @@ App::~App()
     SDL_DestroyRenderer(mRenderer);
     SDL_DestroyWindow(mWindow);
     SDL_Quit();
-
-    // std::ofstream edgesFile("edges.txt");
-    // for(const auto &vertex: mGraph)
-    //     for(const auto &edge: vertex.edges)
-    //         edgesFile << vertex.x << " " << vertex.y << " " << edge.x << " " << edge.y << " " << edge.nextVId << std::endl;
-    // edgesFile.close();
 }
 
 bool App::onUpdateHandler()

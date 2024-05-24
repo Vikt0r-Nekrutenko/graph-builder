@@ -1,6 +1,11 @@
 #include "graph.hpp"
 #include "SDL2/SDL_render.h"
 
+#include <fstream>
+#include <cmath>
+#include <algorithm>
+#include <iostream>
+
 
 Vertex::Vertex(int x, int y) : mX{x}, mY{y} {}
 
@@ -49,6 +54,41 @@ void Vertex::draw(SDL_Renderer *renderer, int scale, int ox, int oy, int r, int 
 std::vector<Edge>::iterator Vertex::findEdge(int x, int y)
 {
     return std::find_if(begin(), end(), [&](const Edge &e){ return e.x == x && e.y == y; });
+}
+
+Graph::Graph()
+{
+    std::ifstream edgesFile("edges.txt");
+    struct tmp { int sx, sy, dx, dy, id; };
+    std::vector<tmp> edges;
+    if(edgesFile.is_open()) {
+        while(edgesFile.eof() == false) {
+            tmp item { -1, -1, -1, -1, -1 };
+            edgesFile >> item.sx >> item.sy >> item.dx >> item.dy >> item.id;
+            if(item.sx == -1 || item.sy == -1 || item.dx == -1 || item.dy == -1 || item.id == -1)
+                continue;
+            edges.push_back({item.sx, item.sy, item.dx, item.dy, item.id});
+            auto vertex = findVertex(item.sx, item.sy);
+            if(vertex == end())
+                addv(item.sx, item.sy);
+        }
+        edgesFile.close();
+    }
+
+    for(const auto &edge: edges) {
+        auto vertex = findVertex(edge.sx, edge.sy);
+        vertex->push_back({edge.dx, edge.dy, edge.id});
+    }
+}
+
+Graph::~Graph()
+{
+    print();
+    std::ofstream edgesFile("edges.txt");
+    for(const auto &vertex: *this)
+        for(const auto &edge: vertex)
+            edgesFile << vertex.mX << " " << vertex.mY << " " << edge.x << " " << edge.y << " " << edge.nextVId << std::endl;
+    edgesFile.close();
 }
 
 void Graph::addv(int x, int y)
