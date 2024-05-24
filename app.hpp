@@ -1,10 +1,11 @@
 #ifndef APP_HPP
 #define APP_HPP
 
-#include "SDL2/SDL.h"
-
 #include <stack>
 
+#include "SDL2/SDL_events.h"
+#include "SDL2/SDL_render.h"
+#include "SDL2/SDL_video.h"
 #include "graph.hpp"
 
 #define WindowWidth 640
