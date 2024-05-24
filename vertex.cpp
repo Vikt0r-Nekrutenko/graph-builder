@@ -15,7 +15,7 @@ void Vertex::print() const
     }
 }
 
-void Vertex::adde(int x, int y, int id)
+void Vertex::add(int x, int y, int id)
 {
     auto edge = findEdge(x, y);
     if(edge != end())

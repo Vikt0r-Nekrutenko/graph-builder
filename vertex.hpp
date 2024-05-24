@@ -21,7 +21,7 @@ public:
 
     void print() const;
 
-    void adde(int x, int y, int id);
+    void add(int x, int y, int id);
 
     void move(int dx, int dy);
 

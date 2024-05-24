@@ -59,8 +59,8 @@ void Graph::addNewEdge(int sx, int sy, int dx, int dy)
     if(svertex == end() || dvertex == end() || svertex == dvertex)
         std::cout << "Vertex doesn't exist!" << std::endl;
     else {
-        svertex->adde(dvertex->mX, dvertex->mY, std::distance(begin(), dvertex));
-        dvertex->adde(svertex->mX, svertex->mY, std::distance(begin(), svertex));
+        svertex->add(dvertex->mX, dvertex->mY, std::distance(begin(), dvertex));
+        dvertex->add(svertex->mX, svertex->mY, std::distance(begin(), svertex));
     }
 }
 
