@@ -51,6 +51,16 @@ public:
 
     void draw(SDL_Renderer *renderer, int scale, int ox, int oy, int r, int g, int b) const;
 
+    void selectv(int x, int y);
+
+    void deselectv();
+
+    void sadd(int dx, int dy);
+
+    void smove(int dx, int dy);
+
+    inline bool isVertexSelected() const { return mSelected != nullptr; }
+
 private:
 
     Vertex *mSelected = nullptr;

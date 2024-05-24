@@ -56,10 +56,8 @@ void Graph::addv(int x, int y)
     auto vertex = findVertex(x, y);
     if(vertex == end()) {
         push_back({x, y});
-        mSelected = &back();
     } else {
         std::cout << "Vertex: " << x << ":" << y << " does exist!" << std::endl;
-        mSelected = &*vertex;
     }
 }
 
@@ -70,8 +68,8 @@ void Graph::adde(int sx, int sy, int dx, int dy)
     if(svertex == end() || dvertex == end() || svertex == dvertex)
         std::cout << "Vertex doesn't exist!" << std::endl;
     else {
-        svertex->adde(dx, dy, std::distance(begin(), dvertex));
-        dvertex->adde(sx, sy, std::distance(begin(), svertex));
+        svertex->adde(dvertex->mX, dvertex->mY, std::distance(begin(), dvertex));
+        dvertex->adde(svertex->mX, svertex->mY, std::distance(begin(), svertex));
     }
 }
 
@@ -82,10 +80,11 @@ void Graph::movev(int sx, int sy, int dx, int dy)
         std::cout << "Vertex doesn't exist!" << std::endl;
     else {
         for(auto &v: *this) {
-            auto edge = v.findEdge(sx, sy);
-            if(edge != v.end()) {
-                edge->x = dx;
-                edge->y = dy;
+            for(auto &edge: v) {
+                if(edge.x == sx && edge.y == sy) {
+                    edge.x = dx;
+                    edge.y = dy;
+                }
             }
         }
         vertex->move(dx, dy);
@@ -107,6 +106,36 @@ void Graph::draw(SDL_Renderer *renderer, int scale, int ox, int oy, int r, int g
     if(mSelected != nullptr) {
         mSelected->draw(renderer, scale, ox, oy, 255, g, b);
     }
+}
+
+void Graph::selectv(int x, int y)
+{
+    auto vertex = findVertex(x, y);
+    if(vertex != end())
+        mSelected = &*vertex;
+    else
+        mSelected = nullptr;
+}
+
+void Graph::deselectv()
+{
+    mSelected = nullptr;
+}
+
+void Graph::sadd(int dx, int dy)
+{
+    auto vertex = findVertex(dx, dy);
+    if(vertex != end())
+        adde(mSelected->mX, mSelected->mY, dx, dy);
+    else {
+        addv(dx, dy);
+        adde(mSelected->mX, mSelected->mY, dx, dy);
+    }
+}
+
+void Graph::smove(int dx, int dy)
+{
+    movev(mSelected->mX, mSelected->mY, dx, dy);
 }
 
 std::vector<Vertex>::iterator Graph::findVertex(int x, int y)
