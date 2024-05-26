@@ -93,13 +93,11 @@ void App::onClickHandler(const SDL_MouseButtonEvent &button)
         }
         break;
     case SDL_BUTTON_RIGHT:
-        // if(mGraph.isVertexSelected()) {
-        //     mHistory.push(mGraph);
-        //     mGraph.addNewVertexToSelected(mx, my);
-        // }
-        // mGraph.selectVertex(mx, my);
-
-
+        if(mGraph.isVertexSelected()) {
+            mHistory.push(mGraph);
+            mGraph.addNewVertexToSelected(mx, my);
+        }
+        mGraph.selectVertex(mx, my);
         break;
     }
 }
@@ -109,7 +107,7 @@ void App::onDragHandler(const SDL_MouseButtonEvent &button, const SDL_MouseMotio
     int mx = (motion.x - mXOffset) / mScaleCoeffitient;
     int my = (motion.y - mYOffset) / mScaleCoeffitient;
 
-    if(button.button == SDL_BUTTON_LEFT && mGraph.isVertexSelected())
+    if(mEditMode == EditMode::MoveVertex && mGraph.isVertexSelected())
         mGraph.moveSelected(mx, my);
 }
 
@@ -136,9 +134,7 @@ void App::onKeyHandler(const SDL_Keysym &keysym)
     case SDL_SCANCODE_UNKNOWN:
     case SDL_SCANCODE_B:
     case SDL_SCANCODE_C:
-    case SDL_SCANCODE_E:
-        mEditMode = mEditMode == EditMode::AddEdge ? EditMode::None : EditMode::AddEdge;
-        break;
+    case SDL_SCANCODE_E: mEditMode = mEditMode == EditMode::AddEdge ? EditMode::None : EditMode::AddEdge; break;
     case SDL_SCANCODE_F:
     case SDL_SCANCODE_G:
     case SDL_SCANCODE_H:
@@ -147,6 +143,9 @@ void App::onKeyHandler(const SDL_Keysym &keysym)
     case SDL_SCANCODE_K:
     case SDL_SCANCODE_L:
     case SDL_SCANCODE_M:
+        mHistory.push(mGraph);
+        mEditMode = mEditMode == EditMode::MoveVertex ? EditMode::None : EditMode::MoveVertex;
+        break;
     case SDL_SCANCODE_N:
     case SDL_SCANCODE_O:
     case SDL_SCANCODE_P:
@@ -154,9 +153,7 @@ void App::onKeyHandler(const SDL_Keysym &keysym)
     case SDL_SCANCODE_R:
     case SDL_SCANCODE_T:
     case SDL_SCANCODE_U:
-    case SDL_SCANCODE_V:
-        mEditMode = mEditMode == EditMode::AddVertex ? EditMode::None : EditMode::AddVertex;
-        break;
+    case SDL_SCANCODE_V: mEditMode = mEditMode == EditMode::AddVertex ? EditMode::None : EditMode::AddVertex; break;
     case SDL_SCANCODE_Y:
     case SDL_SCANCODE_1:
     case SDL_SCANCODE_2:

@@ -29,14 +29,14 @@ Graph::Graph(int *scale)
     }
 
     for(const auto &edge: edges) {
-        auto vertex = std::find_if(begin(), end(), [&](const Vertex &v){ return v.mX == edge.sx && v.mY == edge.sy; });
-        vertex->push_back({edge.dx, edge.dy, edge.id});
+        auto svertex = std::find_if(begin(), end(), [&](const Vertex &v){ return v.mX == edge.sx && v.mY == edge.sy; });
+        auto dvertex = std::find_if(begin(), end(), [&](const Vertex &v){ return v.mX == edge.dx && v.mY == edge.dy; });
+        svertex->push_back({edge.dx, edge.dy, int(std::distance(begin(), dvertex))});
     }
 }
 
 Graph::~Graph()
 {
-    print();
     std::ofstream edgesFile("edges.txt");
     for(const auto &vertex: *this)
         for(const auto &edge: vertex)

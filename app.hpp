@@ -15,6 +15,7 @@ enum class EditMode {
     None,
     AddVertex,
     AddEdge,
+    MoveVertex,
 };
 
 class App
