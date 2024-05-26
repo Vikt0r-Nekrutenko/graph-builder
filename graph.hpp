@@ -19,7 +19,7 @@ public:
 
     void print() const;
 
-    void draw(SDL_Renderer *renderer, int scale, int ox, int oy, int r, int g, int b) const;
+    void draw(SDL_Renderer *renderer, SDL_Texture *edge, SDL_Texture *selected, int scale, int ox, int oy, int r, int g, int b) const;
 
     void selectVertex(int x, int y);
 

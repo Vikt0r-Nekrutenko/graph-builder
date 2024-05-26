@@ -7,7 +7,7 @@
 #include <string>
 
 
-static SDL_Rect bgSourceRect {0,0, 0,0};
+static SDL_Rect __bgSourceRect {0,0, 0,0};
 
 App::App()
     : mGraph{&mScaleCoeffitient}
@@ -15,7 +15,8 @@ App::App()
     SDL_Init(SDL_INIT_VIDEO);
     mWindow = SDL_CreateWindow("", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WindowWidth, WindowHeight, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
     mRenderer = SDL_CreateRenderer(mWindow, -1, SDL_RENDERER_ACCELERATED);
-    createThickLine(mRenderer, 0, 128, 0);
+    mRegularEdgeTexture = createThickLine(mRenderer, 0, 225, 225);
+    mSelectedEdgeTexture = createThickLine(mRenderer, 255, 0, 0);
 
     SDL_Surface* image = SDL_LoadBMP("minimap.bmp");
 
@@ -31,22 +32,23 @@ App::App()
                g < 150 ||
                b < 150)
             {
-                r = g = b = 0x0;
+                r = g = b = 0;
             } else {
-                r = g = b = 0xff;
+                r = g = b = 128;
             }
         }
     }
 
     mBackground = SDL_CreateTextureFromSurface(mRenderer, image);
-    bgSourceRect.w = image->w;
-    bgSourceRect.h = image->h;
+    __bgSourceRect.w = image->w;
+    __bgSourceRect.h = image->h;
     SDL_FreeSurface(image);
 }
 
 App::~App()
 {
-    deleteThickLine();
+    SDL_DestroyTexture(mRegularEdgeTexture);
+    SDL_DestroyTexture(mSelectedEdgeTexture);
     SDL_DestroyTexture(mBackground);
     SDL_DestroyRenderer(mRenderer);
     SDL_DestroyWindow(mWindow);
@@ -57,7 +59,7 @@ bool App::onUpdateHandler()
 {
     drawBackground(mScaleCoeffitient, mXOffset, mYOffset);
 
-    mGraph.draw(mRenderer, mScaleCoeffitient, mXOffset, mYOffset, 255, 75, 39);
+    mGraph.draw(mRenderer, mRegularEdgeTexture, mSelectedEdgeTexture, mScaleCoeffitient, mXOffset, mYOffset, 255, 75, 39);
 
     return isContinue;
 }
@@ -91,6 +93,9 @@ void App::onDragHandler(const SDL_MouseButtonEvent &button, const SDL_MouseMotio
 {
     int mx = (motion.x - mXOffset) / mScaleCoeffitient;
     int my = (motion.y - mYOffset) / mScaleCoeffitient;
+
+    if(button.button == SDL_BUTTON_LEFT && mGraph.isVertexSelected())
+        mGraph.moveSelected(mx, my);
 }
 
 void App::onKeyHandler(const SDL_Keysym &keysym)
@@ -363,10 +368,10 @@ void App::drawBackground(int scaleCoeffitient, int xOffset, int yOffset)
     SDL_Rect bgDestinationRect {
         (-(VertexRectSize >> 1))+2 + xOffset,
         (-(VertexRectSize >> 1))+2 + yOffset,
-        bgSourceRect.w * scaleCoeffitient,
-        bgSourceRect.h * scaleCoeffitient
+        __bgSourceRect.w * scaleCoeffitient,
+        __bgSourceRect.h * scaleCoeffitient
     };
-    SDL_RenderCopy(mRenderer, mBackground, &bgSourceRect, &bgDestinationRect);
+    SDL_RenderCopy(mRenderer, mBackground, &__bgSourceRect, &bgDestinationRect);
 }
 
 int App::run(int fps)

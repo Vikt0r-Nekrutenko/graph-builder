@@ -91,16 +91,15 @@ void Graph::print() const
         vertex.print();
 }
 
-void Graph::draw(SDL_Renderer *renderer, int scale, int ox, int oy, int r, int g, int b) const
+void Graph::draw(SDL_Renderer *renderer, SDL_Texture *edge, SDL_Texture *selected, int scale, int ox, int oy, int r, int g, int b) const
 {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     for(const auto &vertex: *this)
-        vertex.drawEdges(renderer, scale, ox, oy);
+        vertex.drawEdges(renderer, edge, scale, ox, oy);
     for(const auto &vertex: *this)
         vertex.drawVertex(renderer, scale, ox, oy, r, g, b);
-    if(mSelected != nullptr) {
-        mSelected->draw(renderer, scale, ox, oy, 255, g, b);
-    }
+    if(mSelected != nullptr)
+        mSelected->draw(renderer, selected, scale, ox, oy, 255, 0, 0);
 }
 
 void Graph::selectVertex(int x, int y)
