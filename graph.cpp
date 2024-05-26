@@ -129,6 +129,11 @@ void Graph::addNewVertexToSelected(int dx, int dy)
     }
 }
 
+void Graph::addNewEdgeToSelected(int dx, int dy)
+{
+    addNewEdge(mSelected->mX, mSelected->mY, dx, dy);
+}
+
 void Graph::moveSelected(int dx, int dy)
 {
     moveVertex(mSelected->mX, mSelected->mY, dx, dy);

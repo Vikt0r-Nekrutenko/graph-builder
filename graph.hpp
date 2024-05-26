@@ -27,6 +27,8 @@ public:
 
     void addNewVertexToSelected(int dx, int dy);
 
+    void addNewEdgeToSelected(int dx, int dy);
+
     void moveSelected(int dx, int dy);
 
     inline bool isVertexSelected() const { return mSelected != nullptr; }

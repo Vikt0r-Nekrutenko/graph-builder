@@ -49,7 +49,7 @@ void Vertex::add(int x, int y, int id)
 {
     auto edge = findEdge(x, y);
     if(edge != end())
-        std::cout << "Edge does exist!" << std::endl;
+        std::cout << "Edge [" << mX << ":" << mY << "-" << edge->x << ":" << edge->y << "] does exist!" << std::endl;
     else
         push_back({x, y, id});
 }
