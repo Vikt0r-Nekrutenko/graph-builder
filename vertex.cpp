@@ -3,6 +3,37 @@
 
 #include <algorithm>
 #include <iostream>
+#include <cmath>
+
+
+SDL_Texture *createThickLine(SDL_Renderer *renderer, Uint8 r, Uint8 g, Uint8 b)
+{
+    // auto t1 = std::chrono::high_resolution_clock::now();
+    SDL_Surface* lineSurface = SDL_CreateRGBSurface(0, 1, 1, 32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
+    Uint32 color = SDL_MapRGB(lineSurface->format, r, g, b);
+
+    for (int x = 0; x < lineSurface->w; ++x) {
+        ((Uint32*)lineSurface->pixels)[x] = color;
+    }
+
+    // std::cout << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - t1).count() << std::endl;
+    SDL_Texture *result = SDL_CreateTextureFromSurface(renderer, lineSurface);
+    SDL_FreeSurface(lineSurface);
+    return result;
+}
+
+void drawThickLine(SDL_Renderer *renderer, SDL_Texture *line, int x1, int y1, int x2, int y2, int scale, int xoff, int yoff, int thickness)
+{
+    SDL_Rect dr {x1 * scale + xoff,
+                 y1 * scale + yoff,
+                 int(std::sqrt(std::pow(x1 - x2, 2) + std::pow(y1 - y2, 2)) * scale),
+                 thickness};
+    SDL_Point c{0,0};
+    int _x = (x2 * scale + xoff);
+    int _y = (y2 * scale + yoff);
+    float angle = (std::atan2<float>(-(dr.y - _y), -(dr.x - _x))) * (180.f / 3.14f);
+    SDL_RenderCopyEx(renderer, line, NULL, &dr, angle, &c, SDL_RendererFlip::SDL_FLIP_NONE);
+}
 
 
 Vertex::Vertex(int x, int y) : mX{x}, mY{y} {}

@@ -1,6 +1,7 @@
 #ifndef VERTEX_HPP
 #define VERTEX_HPP
 
+#include "SDL2/SDL_stdinc.h"
 #include <vector>
 
 #define VertexRectSize 8
@@ -10,6 +11,10 @@ typedef struct _Edge {
 } Edge;
 
 class SDL_Renderer;
+class SDL_Texture;
+
+SDL_Texture *createThickLine(SDL_Renderer *renderer, Uint8 r, Uint8 g, Uint8 b);
+void drawThickLine(SDL_Renderer *renderer, SDL_Texture *line, int x1, int y1, int x2, int y2, int scale, int xoff, int yoff, int thickness);
 
 class Vertex : private std::vector<Edge>
 {
