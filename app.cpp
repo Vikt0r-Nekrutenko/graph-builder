@@ -2,19 +2,22 @@
 #include "SDL2/SDL.h"
 
 #include <chrono>
+#include <iostream>
+#include <ostream>
 #include <string>
 
 
 static SDL_Rect bgSourceRect {0,0, 0,0};
 
 App::App()
+    : mGraph{&mScaleCoeffitient}
 {
     SDL_Init(SDL_INIT_VIDEO);
     mWindow = SDL_CreateWindow("", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WindowWidth, WindowHeight, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
     mRenderer = SDL_CreateRenderer(mWindow, -1, SDL_RENDERER_ACCELERATED);
+    createThickLine(mRenderer, 0, 128, 0);
 
     SDL_Surface* image = SDL_LoadBMP("minimap.bmp");
-    mLine = createThickLine(mRenderer, 0, 255, 0);
 
     for(int i = 0; i < image->h; ++i) {
         for(int j = 0; j < image->w; ++j) {
@@ -43,7 +46,7 @@ App::App()
 
 App::~App()
 {
-    SDL_DestroyTexture(mLine);
+    deleteThickLine();
     SDL_DestroyTexture(mBackground);
     SDL_DestroyRenderer(mRenderer);
     SDL_DestroyWindow(mWindow);
@@ -54,10 +57,7 @@ bool App::onUpdateHandler()
 {
     drawBackground(mScaleCoeffitient, mXOffset, mYOffset);
 
-    mGraph.draw(mRenderer, mScaleCoeffitient, mXOffset, mYOffset, 0, 0, 0);
-
-    drawThickLine(mRenderer, mLine, 80,42, 60,60, mScaleCoeffitient, mXOffset, mYOffset, 5);
-    drawThickLine(mRenderer, mLine, 75,75, 60,60, mScaleCoeffitient, mXOffset, mYOffset, 5);
+    mGraph.draw(mRenderer, mScaleCoeffitient, mXOffset, mYOffset, 255, 75, 39);
 
     return isContinue;
 }
@@ -91,10 +91,6 @@ void App::onDragHandler(const SDL_MouseButtonEvent &button, const SDL_MouseMotio
 {
     int mx = (motion.x - mXOffset) / mScaleCoeffitient;
     int my = (motion.y - mYOffset) / mScaleCoeffitient;
-
-    if(button.button == SDL_BUTTON_LEFT)
-        if(mGraph.isVertexSelected())
-            mGraph.moveSelected(mx, my);
 }
 
 void App::onKeyHandler(const SDL_Keysym &keysym)

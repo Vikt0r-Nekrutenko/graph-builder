@@ -5,8 +5,9 @@
 #include <iostream>
 #include <cmath>
 
+static SDL_Texture *__line = nullptr;
 
-SDL_Texture *createThickLine(SDL_Renderer *renderer, Uint8 r, Uint8 g, Uint8 b)
+void createThickLine(SDL_Renderer *renderer, Uint8 r, Uint8 g, Uint8 b)
 {
     // auto t1 = std::chrono::high_resolution_clock::now();
     SDL_Surface* lineSurface = SDL_CreateRGBSurface(0, 1, 1, 32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
@@ -17,12 +18,17 @@ SDL_Texture *createThickLine(SDL_Renderer *renderer, Uint8 r, Uint8 g, Uint8 b)
     }
 
     // std::cout << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - t1).count() << std::endl;
-    SDL_Texture *result = SDL_CreateTextureFromSurface(renderer, lineSurface);
+    if(__line == nullptr)
+        __line = SDL_CreateTextureFromSurface(renderer, lineSurface);
     SDL_FreeSurface(lineSurface);
-    return result;
 }
 
-void drawThickLine(SDL_Renderer *renderer, SDL_Texture *line, int x1, int y1, int x2, int y2, int scale, int xoff, int yoff, int thickness)
+void deleteThickLine()
+{
+    SDL_DestroyTexture(__line);
+}
+
+void drawThickLine(SDL_Renderer *renderer, int x1, int y1, int x2, int y2, int scale, int xoff, int yoff, int thickness)
 {
     SDL_Rect dr {x1 * scale + xoff,
                  y1 * scale + yoff,
@@ -32,7 +38,7 @@ void drawThickLine(SDL_Renderer *renderer, SDL_Texture *line, int x1, int y1, in
     int _x = (x2 * scale + xoff);
     int _y = (y2 * scale + yoff);
     float angle = (std::atan2<float>(-(dr.y - _y), -(dr.x - _x))) * (180.f / 3.14f);
-    SDL_RenderCopyEx(renderer, line, NULL, &dr, angle, &c, SDL_RendererFlip::SDL_FLIP_NONE);
+    SDL_RenderCopyEx(renderer, __line, NULL, &dr, angle, &c, SDL_RendererFlip::SDL_FLIP_NONE);
 }
 
 
@@ -63,21 +69,37 @@ void Vertex::move(int dx, int dy)
 
 void Vertex::draw(SDL_Renderer *renderer, int scale, int ox, int oy, int r, int g, int b) const
 {
-    SDL_SetRenderDrawColor(renderer, r, g, b, 255);
     SDL_Rect rect {
         mX * scale + ox - (VertexRectSize >> 1),
         mY * scale + oy - (VertexRectSize >> 1),
         VertexRectSize,
         VertexRectSize
     };
-    SDL_RenderDrawRect(renderer, &rect);
     for(const auto &edge: *this) {
-        SDL_RenderDrawLine(renderer,
-                           mX * scale + ox,
-                           mY * scale + oy,
-                           edge.x * scale + ox,
-                           edge.y * scale + oy);
+        drawThickLine(renderer, mX, mY, edge.x, edge.y, scale, ox, oy, 3);
     }
+    SDL_SetRenderDrawColor(renderer, r, g, b, 255);
+    SDL_RenderDrawRect(renderer, &rect);
+    SDL_RenderFillRect(renderer, &rect);
+}
+
+void Vertex::drawEdges(SDL_Renderer *renderer, int scale, int ox, int oy) const
+{
+    for(const auto &edge: *this)
+        drawThickLine(renderer, mX, mY, edge.x, edge.y, scale, ox, oy, 3);
+}
+
+void Vertex::drawVertex(SDL_Renderer *renderer, int scale, int ox, int oy, int r, int g, int b) const
+{
+    SDL_Rect rect {
+        mX * scale + ox - (VertexRectSize >> 1),
+        mY * scale + oy - (VertexRectSize >> 1),
+        VertexRectSize,
+        VertexRectSize
+    };
+    SDL_SetRenderDrawColor(renderer, r, g, b, 255);
+    SDL_RenderDrawRect(renderer, &rect);
+    SDL_RenderFillRect(renderer, &rect);
 }
 
 std::vector<Edge>::iterator Vertex::findEdge(int x, int y)

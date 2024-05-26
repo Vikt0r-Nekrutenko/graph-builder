@@ -7,7 +7,7 @@ class Graph : private std::vector<Vertex>
 {
 public:
 
-    Graph();
+    Graph(int *scale);
 
     ~Graph();
 
@@ -34,6 +34,7 @@ public:
 private:
 
     Vertex *mSelected = nullptr;
+    int *mScalePtr = nullptr;
 
     std::vector<Vertex>::iterator findVertex(int x, int y);
 };

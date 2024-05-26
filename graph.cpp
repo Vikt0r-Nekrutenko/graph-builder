@@ -7,27 +7,29 @@
 #include <iostream>
 
 
-Graph::Graph()
+Graph::Graph(int *scale)
+    : mScalePtr{scale}
 {
     std::ifstream edgesFile("edges.txt");
     struct tmp { int sx, sy, dx, dy, id; };
     std::vector<tmp> edges;
     if(edgesFile.is_open()) {
         while(edgesFile.eof() == false) {
-            tmp item { -1, -1, -1, -1, -1 };
-            edgesFile >> item.sx >> item.sy >> item.dx >> item.dy >> item.id;
-            if(item.sx == -1 || item.sy == -1 || item.dx == -1 || item.dy == -1 || item.id == -1)
+            int sx = -1, sy = -1, dx = -1, dy = -1, id = -1;
+            edgesFile >> sx >> sy >> dx >> dy >> id;
+            if(sx == -1 || sy == -1 || dx == -1 || dy == -1 || id == -1){
                 continue;
-            edges.push_back({item.sx, item.sy, item.dx, item.dy, item.id});
-            auto vertex = findVertex(item.sx, item.sy);
+            }
+            edges.push_back({sx, sy, dx, dy, id});
+            auto vertex = std::find_if(begin(), end(), [&](const Vertex &v){ return v.mX == sx && v.mY == sy; });
             if(vertex == end())
-                addNewVertex(item.sx, item.sy);
+                push_back({sx, sy});
         }
         edgesFile.close();
     }
 
     for(const auto &edge: edges) {
-        auto vertex = findVertex(edge.sx, edge.sy);
+        auto vertex = std::find_if(begin(), end(), [&](const Vertex &v){ return v.mX == edge.sx && v.mY == edge.sy; });
         vertex->push_back({edge.dx, edge.dy, edge.id});
     }
 }
@@ -93,7 +95,9 @@ void Graph::draw(SDL_Renderer *renderer, int scale, int ox, int oy, int r, int g
 {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     for(const auto &vertex: *this)
-        vertex.draw(renderer, scale, ox, oy, r, g, b);
+        vertex.drawEdges(renderer, scale, ox, oy);
+    for(const auto &vertex: *this)
+        vertex.drawVertex(renderer, scale, ox, oy, r, g, b);
     if(mSelected != nullptr) {
         mSelected->draw(renderer, scale, ox, oy, 255, g, b);
     }
@@ -135,6 +139,6 @@ std::vector<Vertex>::iterator Graph::findVertex(int x, int y)
 {
     return std::find_if(begin(), end(), [&](const Vertex &v){
         return std::sqrt(std::pow(v.mX - x, 2.f) +
-                         std::pow(v.mY - y, 2.f)) < (VertexRectSize >> 1) + 1.f;
+                         std::pow(v.mY - y, 2.f)) < float(VertexRectSize) / float(*mScalePtr);
     });
 }
