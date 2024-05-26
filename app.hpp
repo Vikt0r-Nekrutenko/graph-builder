@@ -11,6 +11,11 @@
 #define WindowWidth 640
 #define WindowHeight 480
 
+enum class EditMode {
+    None,
+    Add
+};
+
 class App
 {
 public:
@@ -32,6 +37,7 @@ private:
     SDL_Texture *mSelectedEdgeTexture = nullptr;
 
     int mScaleCoeffitient = 1, mXOffset = 0, mYOffset = 0;
+    EditMode mEditMode = EditMode::None;
     bool isContinue = true;
 
     bool onUpdateHandler();

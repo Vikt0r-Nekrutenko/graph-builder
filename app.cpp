@@ -71,19 +71,30 @@ void App::onClickHandler(const SDL_MouseButtonEvent &button)
 
     switch(button.button) {
     case SDL_BUTTON_LEFT:
-        mGraph.selectVertex(mx, my);
-        if(!mGraph.isVertexSelected()) {
-            mHistory.push(mGraph);
-            mGraph.addNewVertex(mx, my);
+        switch (mEditMode) {
+        case EditMode::None:
             mGraph.selectVertex(mx, my);
+            break;
+        case EditMode::Add:
+            if(mGraph.isVertexSelected()) {
+                mHistory.push(mGraph);
+                mGraph.addNewVertexToSelected(mx, my);
+                mGraph.selectVertex(mx, my);
+            } else {
+                mHistory.push(mGraph);
+                mGraph.addNewVertex(mx, my);
+                mGraph.selectVertex(mx, my);
+            }
+            break;
         }
         break;
     case SDL_BUTTON_RIGHT:
-        if(mGraph.isVertexSelected()) {
-            mHistory.push(mGraph);
-            mGraph.addNewVertexToSelected(mx, my);
-        }
-        mGraph.selectVertex(mx, my);
+        // if(mGraph.isVertexSelected()) {
+        //     mHistory.push(mGraph);
+        //     mGraph.addNewVertexToSelected(mx, my);
+        // }
+        // mGraph.selectVertex(mx, my);
+
 
         break;
     }
@@ -131,6 +142,8 @@ void App::onKeyHandler(const SDL_Keysym &keysym)
     case SDL_SCANCODE_L:
     case SDL_SCANCODE_M:
     case SDL_SCANCODE_N:
+        mEditMode = mEditMode == EditMode::Add ? EditMode::None : EditMode::Add;
+        break;
     case SDL_SCANCODE_O:
     case SDL_SCANCODE_P:
     case SDL_SCANCODE_Q:
