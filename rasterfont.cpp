@@ -23,6 +23,9 @@ void RasterFont::updateColor(Uint8 r, Uint8 g, Uint8 b)
 
 void RasterFont::changeColor(Uint8 r, Uint8 g, Uint8 b)
 {
+    if(mR == r && mG == g && mB == b)
+        return;
+
     for(int y = 0; y < mFontSurface->h; ++y) {
         for(int x = 0; x < mFontSurface->w; ++x) {
             Uint8 *pixel = ((Uint8 *) mFontSurface->pixels +
@@ -30,8 +33,8 @@ void RasterFont::changeColor(Uint8 r, Uint8 g, Uint8 b)
                             x * mFontSurface->format->BytesPerPixel);
             Uint8 &_a = pixel[3],
                 &_r = pixel[2],
-                    &_g = pixel[1],
-                        &_b = pixel[0];
+                &_g = pixel[1],
+                &_b = pixel[0];
             if(_a == 0xff) {
                 mR = _r = r;
                 mG = _g = g;
