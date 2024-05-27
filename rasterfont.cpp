@@ -1,6 +1,8 @@
 #include "rasterfont.hpp"
 #include "SDL2/SDL_render.h"
 #include "SDL2/SDL_surface.h"
+#include <algorithm>
+#include <cstring>
 #include <string>
 
 RasterFont::RasterFont(SDL_Renderer *renderer, Uint8 r, Uint8 g, Uint8 b)
@@ -62,7 +64,7 @@ void drawSymbol(SDL_Renderer *renderer, const RasterFont &font, unsigned char sy
     SDL_RenderCopy(renderer, font.mFontTexture, &srcRect, &destRect);
 }
 
-void drawText(SDL_Renderer *renderer, const RasterFont &font, const char *text, int x, int y)
+int drawText(SDL_Renderer *renderer, const RasterFont &font, const char *text, int x, int y)
 {
     int it = 0;
     const char *ptr = text;
@@ -70,14 +72,50 @@ void drawText(SDL_Renderer *renderer, const RasterFont &font, const char *text, 
         drawSymbol(renderer, font, *ptr++, x + it, y);
         it += RF_SYM_dW;
     }
+    return it;
 }
 
-void drawNumber(SDL_Renderer *renderer, const RasterFont &font, int n, int x, int y)
+int drawNumber(SDL_Renderer *renderer, const RasterFont &font, int n, int x, int y)
 {
-    drawText(renderer, font, std::to_string(n).c_str(), x, y);
+    return drawText(renderer, font, std::to_string(n).c_str(), x, y);
 }
 
-void drawNumber(SDL_Renderer *renderer, const RasterFont &font, double n, int x, int y)
+int drawNumber(SDL_Renderer *renderer, const RasterFont &font, double n, int x, int y)
 {
-    drawText(renderer, font, std::to_string(n).c_str(), x, y);
+    return drawText(renderer, font, std::to_string(n).c_str(), x, y);
+}
+
+int draw(SDL_Renderer *renderer, const RasterFont &font, int x, int y, const char *format, ...)
+{
+    va_list vl;
+    va_start(vl, format);
+
+    int it = 0;
+
+    for (const char *ptr = format; *ptr != '\0'; ptr++) {
+        if (*ptr == '%') {
+            ptr++;
+            if (*ptr == 's') {
+                const char *str = va_arg(vl, const char *);
+                it += drawText(renderer, font, str, x + it, y);
+            } else if(*ptr == 'd') {
+                const int n = va_arg(vl, int);
+                it += drawNumber(renderer, font, n, x + it, y);
+            } else if(*ptr == 'f') {
+                const double n = va_arg(vl, double);
+                std::string ns = std::to_string(n);
+                if(*++ptr == '.') {
+                    int symAfterPoint = *++ptr - '0' + 1;
+                    auto itr = std::find_if(ns.begin(), ns.end(), [&](const char &s){ return s == '.'; });
+                    ns = std::string(ns.begin(), itr + symAfterPoint);
+                }
+                it += drawText(renderer, font, ns.c_str(), x + it, y);
+            }
+        } else {
+            drawSymbol(renderer, font, *ptr, x + it, y);
+            it += RF_SYM_dW;
+        }
+    }
+    va_end(vl);
+    return it;
 }
