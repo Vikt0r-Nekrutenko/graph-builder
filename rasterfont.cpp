@@ -47,16 +47,26 @@ void RasterFont::changeColor(Uint8 r, Uint8 g, Uint8 b)
 void drawSymbol(SDL_Renderer *renderer, const RasterFont &font, unsigned char sym, int x, int y)
 {
     SDL_Rect srcRect {
-            RF_SYM_W * (sym % RF_MAP_S),
-        3 + RF_SYM_H * (sym / RF_MAP_S + 1),
-        RF_SYM_W,
-        RF_SYM_H
+            RF_SYM_sW * (sym % RF_MAP_S),
+        3 + RF_SYM_sH * (sym / RF_MAP_S + 1),
+        RF_SYM_sW,
+        RF_SYM_sH
     };
     SDL_Rect destRect {
         x,
         y,
-        RF_SYM_W >> 1,
-        RF_SYM_H >> 1
+        RF_SYM_dW,
+        RF_SYM_dH
     };
     SDL_RenderCopy(renderer, font.mFontTexture, &srcRect, &destRect);
+}
+
+void drawText(SDL_Renderer *renderer, const RasterFont &font, const char *text, int x, int y)
+{
+    int it = 0;
+    const char *ptr = text;
+    while(*ptr != 0) {
+        drawSymbol(renderer, font, *ptr++, x + it, y);
+        it += RF_SYM_dW;
+    }
 }
