@@ -6,6 +6,7 @@
 
 int WinMain()
 {
+    return App().run(30);
     bool isContinue = true;
     SDL_Event event;
     size_t countedFrames = 0;

@@ -6,6 +6,12 @@
 #include <ostream>
 #include <string>
 
+std::vector<std::string> modsNaming {
+    "Select Vertex",
+    "Add Vertex",
+    "Add Edge",
+    "Move Vertex",
+};
 
 static SDL_Rect __bgSourceRect {0,0, 0,0};
 
@@ -43,10 +49,14 @@ App::App()
     __bgSourceRect.w = image->w;
     __bgSourceRect.h = image->h;
     SDL_FreeSurface(image);
+
+    mFont = new RasterFont(mRenderer, 0xff, 0xff, 0xff);
+    mFont->scalePlus();
 }
 
 App::~App()
 {
+    delete mFont;
     SDL_DestroyTexture(mRegularEdgeTexture);
     SDL_DestroyTexture(mSelectedEdgeTexture);
     SDL_DestroyTexture(mBackground);
@@ -61,6 +71,7 @@ bool App::onUpdateHandler()
 
     mGraph.draw(mRenderer, mRegularEdgeTexture, mSelectedEdgeTexture, mScaleCoeffitient, mXOffset, mYOffset, 255, 75, 39);
 
+    draw(mRenderer, *mFont, 0, 0, "Current mode: %s", modsNaming[int(mEditMode)].c_str());
     return isContinue;
 }
 

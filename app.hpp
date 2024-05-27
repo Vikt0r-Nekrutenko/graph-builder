@@ -7,6 +7,7 @@
 #include "SDL2/SDL_render.h"
 #include "SDL2/SDL_video.h"
 #include "graph.hpp"
+#include "rasterfont.hpp"
 
 #define WindowWidth 640
 #define WindowHeight 480
@@ -37,6 +38,7 @@ private:
     SDL_Texture *mBackground = nullptr;
     SDL_Texture *mRegularEdgeTexture = nullptr;
     SDL_Texture *mSelectedEdgeTexture = nullptr;
+    RasterFont *mFont = nullptr;
 
     int mScaleCoeffitient = 1, mXOffset = 0, mYOffset = 0;
     EditMode mEditMode = EditMode::None;

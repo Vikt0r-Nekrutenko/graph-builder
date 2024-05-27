@@ -123,10 +123,11 @@ int draw(SDL_Renderer *renderer, const RasterFont &font, int x, int y, const cha
             } else if(*ptr == 'f') {
                 const double n = va_arg(vl, double);
                 std::string ns = std::to_string(n);
-                if(*++ptr == '.') {
-                    int symAfterPoint = *++ptr - '0' + 1;
+                if(ptr[1] == '.' && ptr[2] >= '0' && ptr[2] <= '9') {
+                    int symAfterPoint = ptr[2] - '0' + 1;
                     auto itr = std::find_if(ns.begin(), ns.end(), [&](const char &s){ return s == '.'; });
                     ns = std::string(ns.begin(), itr + symAfterPoint);
+                    ptr += 2;
                 }
                 it += drawText(renderer, font, ns.c_str(), x + it, y);
             }
