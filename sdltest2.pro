@@ -12,9 +12,11 @@ SOURCES += \
         app.cpp \
         graph.cpp \
         main.cpp \
+        rasterfont.cpp \
         vertex.cpp
 
 HEADERS += \
     app.hpp \
     graph.hpp \
+    rasterfont.hpp \
     vertex.hpp
