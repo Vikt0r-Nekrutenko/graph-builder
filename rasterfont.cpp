@@ -5,7 +5,12 @@
 #include <cstring>
 #include <string>
 
+#define RF_SYM_W 10
+#define RF_SYM_H 20
+#define RF_MAP_S 13
+
 RasterFont::RasterFont(SDL_Renderer *renderer, Uint8 r, Uint8 g, Uint8 b)
+    : mFontW{RF_SYM_W}, mFontH{RF_SYM_H}
 {
     mFontSurface = SDL_LoadBMP("raster_font_.bmp");
     changeColor(r, g, b);
@@ -22,6 +27,20 @@ void RasterFont::updateColor(Uint8 r, Uint8 g, Uint8 b)
 {
     changeColor(r, g, b);
     SDL_UpdateTexture(mFontTexture, NULL, mFontSurface->pixels, mFontSurface->pitch);
+}
+
+void RasterFont::scalePlus()
+{
+    ++mScaleMultiplier;
+    mFontW = (RF_SYM_W) * mScaleMultiplier;
+    mFontH = (RF_SYM_H) * mScaleMultiplier;
+}
+
+void RasterFont::scaleMinus()
+{
+    --mScaleMultiplier;
+    mFontW = (RF_SYM_W) * mScaleMultiplier;
+    mFontH = (RF_SYM_H) * mScaleMultiplier;
 }
 
 void RasterFont::changeColor(Uint8 r, Uint8 g, Uint8 b)
@@ -50,16 +69,16 @@ void RasterFont::changeColor(Uint8 r, Uint8 g, Uint8 b)
 void drawSymbol(SDL_Renderer *renderer, const RasterFont &font, unsigned char sym, int x, int y)
 {
     SDL_Rect srcRect {
-            RF_SYM_sW * (sym % RF_MAP_S),
-        3 + RF_SYM_sH * (sym / RF_MAP_S + 1),
-        RF_SYM_sW,
-        RF_SYM_sH
+            RF_SYM_W * (sym % RF_MAP_S),
+        3 + RF_SYM_H * (sym / RF_MAP_S + 1),
+        RF_SYM_W,
+        RF_SYM_H
     };
     SDL_Rect destRect {
         x,
-        y,
-        RF_SYM_dW,
-        RF_SYM_dH
+        y * font.mScaleMultiplier,
+        font.mFontW,
+        font.mFontH
     };
     SDL_RenderCopy(renderer, font.mFontTexture, &srcRect, &destRect);
 }
@@ -70,7 +89,7 @@ int drawText(SDL_Renderer *renderer, const RasterFont &font, const char *text, i
     const char *ptr = text;
     while(*ptr != 0) {
         drawSymbol(renderer, font, *ptr++, x + it, y);
-        it += RF_SYM_dW;
+        it += font.mFontW;
     }
     return it;
 }
@@ -113,7 +132,7 @@ int draw(SDL_Renderer *renderer, const RasterFont &font, int x, int y, const cha
             }
         } else {
             drawSymbol(renderer, font, *ptr, x + it, y);
-            it += RF_SYM_dW;
+            it += font.mFontW;
         }
     }
     va_end(vl);
