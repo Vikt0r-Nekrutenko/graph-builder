@@ -25,7 +25,9 @@ public:
     void updateColor(Uint8 r, Uint8 g, Uint8 b);
 
     friend void drawSymbol(SDL_Renderer *renderer, const RasterFont &font, unsigned char sym, int x, int y);
-    friend void drawText(SDL_Renderer *renderer, const RasterFont &font, unsigned char sym, int x, int y);
+    friend void drawText(SDL_Renderer *renderer, const RasterFont &font, const char *text, int x, int y);
+    friend void drawNumber(SDL_Renderer *renderer, const RasterFont &font, int n, int x, int y);
+    friend void drawNumber(SDL_Renderer *renderer, const RasterFont &font, double n, int x, int y);
 
 private:
 
@@ -42,5 +44,7 @@ private:
 
 void drawSymbol(SDL_Renderer *renderer, const RasterFont &font, unsigned char sym, int x, int y);
 void drawText(SDL_Renderer *renderer, const RasterFont &font, const char *text, int x, int y);
+void drawNumber(SDL_Renderer *renderer, const RasterFont &font, int n, int x, int y);
+void drawNumber(SDL_Renderer *renderer, const RasterFont &font, double n, int x, int y);
 
 #endif // RASTERFONT_HPP

@@ -1,6 +1,7 @@
 #include "rasterfont.hpp"
 #include "SDL2/SDL_render.h"
 #include "SDL2/SDL_surface.h"
+#include <string>
 
 RasterFont::RasterFont(SDL_Renderer *renderer, Uint8 r, Uint8 g, Uint8 b)
 {
@@ -69,4 +70,14 @@ void drawText(SDL_Renderer *renderer, const RasterFont &font, const char *text, 
         drawSymbol(renderer, font, *ptr++, x + it, y);
         it += RF_SYM_dW;
     }
+}
+
+void drawNumber(SDL_Renderer *renderer, const RasterFont &font, int n, int x, int y)
+{
+    drawText(renderer, font, std::to_string(n).c_str(), x, y);
+}
+
+void drawNumber(SDL_Renderer *renderer, const RasterFont &font, double n, int x, int y)
+{
+    drawText(renderer, font, std::to_string(n).c_str(), x, y);
 }
