@@ -5,6 +5,7 @@
 
 class SDL_Texture;
 class SDL_Renderer;
+class SDL_Surface;
 
 class RasterFont
 {
@@ -14,12 +15,17 @@ public:
 
     ~RasterFont();
 
+    void updateColor(Uint8 r, Uint8 g, Uint8 b);
+
 private:
 
+    SDL_Surface *mFontSurface = nullptr;
     SDL_Texture *mFontTexture = nullptr;
     Uint8 mR = 0xff,
           mG = 0xff,
           mB = 0xff;
+
+    void changeColor(Uint8 r, Uint8 g, Uint8 b);
 };
 
 #endif // RASTERFONT_HPP
