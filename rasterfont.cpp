@@ -9,8 +9,8 @@
 #define RF_SYM_H 20
 #define RF_MAP_S 13
 
-RasterFont::RasterFont(SDL_Renderer *renderer, Uint8 r, Uint8 g, Uint8 b)
-    : mFontW{RF_SYM_W >> 1}, mFontH{RF_SYM_H >> 1}
+RasterFont::RasterFont(SDL_Renderer *renderer, int size, Uint8 r, Uint8 g, Uint8 b)
+    : W{size >> 1}, H{size}, mFontW{W}, mFontH{H}
 {
     mFontSurface = SDL_LoadBMP("raster_font_.bmp");
     changeColor(r, g, b);

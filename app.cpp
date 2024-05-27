@@ -2,8 +2,6 @@
 #include "SDL2/SDL.h"
 
 #include <chrono>
-#include <iostream>
-#include <ostream>
 #include <string>
 
 std::vector<std::string> modsNaming {
@@ -50,8 +48,7 @@ App::App()
     __bgSourceRect.h = image->h;
     SDL_FreeSurface(image);
 
-    mFont = new RasterFont(mRenderer, 0xff, 0xff, 0xff);
-    mFont->scalePlus();
+    mFont = new RasterFont(mRenderer, 20, 0xff, 0xff, 0xff);
 }
 
 App::~App()
@@ -101,6 +98,8 @@ void App::onClickHandler(const SDL_MouseButtonEvent &button)
                 mGraph.addNewEdgeToSelected(mx, my);
             }
             break;
+        case EditMode::MoveVertex:
+            break;
         }
         break;
     case SDL_BUTTON_RIGHT:
@@ -125,12 +124,10 @@ void App::onDragHandler(const SDL_MouseButtonEvent &button, const SDL_MouseMotio
 void App::onKeyHandler(const SDL_Keysym &keysym)
 {
     switch (keysym.scancode) {
-    case SDL_SCANCODE_ESCAPE: isContinue = false; break;
-    case SDL_SCANCODE_W: mYOffset += 5; break;
-    case SDL_SCANCODE_S: mYOffset -= 5; break;
-    case SDL_SCANCODE_A: mXOffset += 5; break;
-    case SDL_SCANCODE_D: mXOffset -= 5; break;
-    case SDL_SCANCODE_X: mScaleCoeffitient -= mScaleCoeffitient > 1 ? 1 : 0 ; break;
+    case SDL_SCANCODE_X:
+        mScaleCoeffitient -= mScaleCoeffitient > 1 ? 1 : 0;
+        mFont->scaleMinus();
+        break;
     case SDL_SCANCODE_Z:
         if(keysym.mod == KMOD_LCTRL) {
             if(!mHistory.empty()) {
@@ -140,12 +137,23 @@ void App::onKeyHandler(const SDL_Keysym &keysym)
             }
         } else {
             ++mScaleCoeffitient;
+            mFont->scalePlus();
         }
         break;
+    case SDL_SCANCODE_M:
+        mHistory.push(mGraph);
+        mEditMode = mEditMode == EditMode::MoveVertex ? EditMode::None : EditMode::MoveVertex;
+        break;
+    case SDL_SCANCODE_ESCAPE: isContinue = false; break;
+    case SDL_SCANCODE_W: mYOffset += 5; break;
+    case SDL_SCANCODE_S: mYOffset -= 5; break;
+    case SDL_SCANCODE_A: mXOffset += 5; break;
+    case SDL_SCANCODE_D: mXOffset -= 5; break;
+    case SDL_SCANCODE_E: mEditMode = mEditMode == EditMode::AddEdge ? EditMode::None : EditMode::AddEdge; break;
+    case SDL_SCANCODE_V: mEditMode = mEditMode == EditMode::AddVertex ? EditMode::None : EditMode::AddVertex; break;
     case SDL_SCANCODE_UNKNOWN:
     case SDL_SCANCODE_B:
     case SDL_SCANCODE_C:
-    case SDL_SCANCODE_E: mEditMode = mEditMode == EditMode::AddEdge ? EditMode::None : EditMode::AddEdge; break;
     case SDL_SCANCODE_F:
     case SDL_SCANCODE_G:
     case SDL_SCANCODE_H:
@@ -153,10 +161,6 @@ void App::onKeyHandler(const SDL_Keysym &keysym)
     case SDL_SCANCODE_J:
     case SDL_SCANCODE_K:
     case SDL_SCANCODE_L:
-    case SDL_SCANCODE_M:
-        mHistory.push(mGraph);
-        mEditMode = mEditMode == EditMode::MoveVertex ? EditMode::None : EditMode::MoveVertex;
-        break;
     case SDL_SCANCODE_N:
     case SDL_SCANCODE_O:
     case SDL_SCANCODE_P:
@@ -164,7 +168,6 @@ void App::onKeyHandler(const SDL_Keysym &keysym)
     case SDL_SCANCODE_R:
     case SDL_SCANCODE_T:
     case SDL_SCANCODE_U:
-    case SDL_SCANCODE_V: mEditMode = mEditMode == EditMode::AddVertex ? EditMode::None : EditMode::AddVertex; break;
     case SDL_SCANCODE_Y:
     case SDL_SCANCODE_1:
     case SDL_SCANCODE_2:

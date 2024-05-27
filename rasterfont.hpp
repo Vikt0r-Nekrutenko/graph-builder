@@ -11,10 +11,10 @@ class RasterFont
 {
 public:
 
-    static constexpr int W = 5;
-    static constexpr int H = 10;
+    int W;
+    int H;
 
-    RasterFont(SDL_Renderer *renderer, Uint8 r, Uint8 g, Uint8 b);
+    RasterFont(SDL_Renderer *renderer, int size, Uint8 r, Uint8 g, Uint8 b);
 
     ~RasterFont();
 
