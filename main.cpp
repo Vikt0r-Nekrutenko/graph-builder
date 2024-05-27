@@ -23,7 +23,7 @@ int WinMain()
         SDL_RenderClear(mRenderer);
 
         draw(mRenderer, rf, 0, 0, "%f.2%s", 24.780, "Hello_");
-        draw(mRenderer, rf, 0, 20, "%s", "_world!");
+        draw(mRenderer, rf, 0, rf.H, "%s", "_world!");
 
         SDL_RenderPresent(mRenderer);
         ++countedFrames;

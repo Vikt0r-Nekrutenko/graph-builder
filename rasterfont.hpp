@@ -11,6 +11,9 @@ class RasterFont
 {
 public:
 
+    static constexpr int W = 5;
+    static constexpr int H = 10;
+
     RasterFont(SDL_Renderer *renderer, Uint8 r, Uint8 g, Uint8 b);
 
     ~RasterFont();
@@ -18,6 +21,7 @@ public:
     void updateColor(Uint8 r, Uint8 g, Uint8 b);
 
     void scalePlus();
+
     void scaleMinus();
 
     friend void drawSymbol(SDL_Renderer *renderer, const RasterFont &font, unsigned char sym, int x, int y);

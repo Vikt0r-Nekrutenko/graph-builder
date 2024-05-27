@@ -10,7 +10,7 @@
 #define RF_MAP_S 13
 
 RasterFont::RasterFont(SDL_Renderer *renderer, Uint8 r, Uint8 g, Uint8 b)
-    : mFontW{RF_SYM_W}, mFontH{RF_SYM_H}
+    : mFontW{RF_SYM_W >> 1}, mFontH{RF_SYM_H >> 1}
 {
     mFontSurface = SDL_LoadBMP("raster_font_.bmp");
     changeColor(r, g, b);
@@ -32,15 +32,15 @@ void RasterFont::updateColor(Uint8 r, Uint8 g, Uint8 b)
 void RasterFont::scalePlus()
 {
     ++mScaleMultiplier;
-    mFontW = (RF_SYM_W) * mScaleMultiplier;
-    mFontH = (RF_SYM_H) * mScaleMultiplier;
+    mFontW = W * mScaleMultiplier;
+    mFontH = H * mScaleMultiplier;
 }
 
 void RasterFont::scaleMinus()
 {
     --mScaleMultiplier;
-    mFontW = (RF_SYM_W) * mScaleMultiplier;
-    mFontH = (RF_SYM_H) * mScaleMultiplier;
+    mFontW = W * mScaleMultiplier;
+    mFontH = H * mScaleMultiplier;
 }
 
 void RasterFont::changeColor(Uint8 r, Uint8 g, Uint8 b)
