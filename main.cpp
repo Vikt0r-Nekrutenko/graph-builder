@@ -2,6 +2,7 @@
 #include <iostream>
 #include "SDL2/SDL_timer.h"
 #include "app.hpp"
+#include "rasterfont.hpp"
 #include <chrono>
 
 #define SYM_W 10
@@ -18,7 +19,24 @@ struct {
 
 void loadFont(SDL_Renderer *renderer)
 {
-
+    surf = SDL_LoadBMP("raster_font.bmp");
+    for(int y = 0; y < surf->h; ++y) {
+        for(int x = 0; x < surf->w; ++x) {
+            Uint8 *pixel = ((Uint8 *) surf->pixels +
+                            y * surf->pitch +
+                            x * surf->format->BytesPerPixel);
+            Uint8 &a = pixel[3],
+                &r = pixel[2],
+                &g = pixel[1],
+                &b = pixel[0];
+            if(r < 150 || g < 150 || b < 150) {
+                a = 0;
+            } else {
+                r = g = b = a = 0xff;
+            }
+        }
+    }
+    txtr = SDL_CreateTextureFromSurface(renderer, surf);
 }
 
 void changeColor(Uint8 r, Uint8 g, Uint8 b)
@@ -124,6 +142,8 @@ int WinMain()
 
     SDL_Window *mWindow = SDL_CreateWindow("", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WindowWidth, WindowHeight, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
     SDL_Renderer *mRenderer = SDL_CreateRenderer(mWindow, -1, SDL_RENDERER_ACCELERATED);
+    RasterFont rf(mRenderer);
+
     loadFont(mRenderer);
 
     while(isContinue) {
