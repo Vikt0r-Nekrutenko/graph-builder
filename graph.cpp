@@ -136,7 +136,15 @@ void Graph::addNewEdgeToSelected(int dx, int dy)
 
 void Graph::moveSelected(int dx, int dy)
 {
-    moveVertex(mSelected->mX, mSelected->mY, dx, dy);
+    for(auto &v: *this) {
+        for(auto &edge: v) {
+            if(edge.x == mSelected->mX && edge.y == mSelected->mY) {
+                edge.x = dx;
+                edge.y = dy;
+            }
+        }
+    }
+    mSelected->move(dx, dy);
 }
 
 std::vector<Vertex>::iterator Graph::findVertex(int x, int y)
