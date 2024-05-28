@@ -61,14 +61,18 @@ App::~App()
     SDL_DestroyWindow(mWindow);
     SDL_Quit();
 }
-
+int cbw = 0;
 bool App::onUpdateHandler()
 {
     drawBackground(mScaleCoeffitient, mXOffset, mYOffset);
 
     mGraph.draw(mRenderer, mRegularEdgeTexture, mSelectedEdgeTexture, mScaleCoeffitient, mXOffset, mYOffset, 255, 75, 39);
 
-    draw(mRenderer, *mFont, 0, 0, "Current mode: %s", modsNaming[int(mEditMode)].c_str());
+    SDL_SetRenderDrawColor(mRenderer, 0, 0, 0, 255);
+    SDL_Rect consoleBackground { 0, 0, cbw , mFont->H };
+    SDL_RenderFillRect(mRenderer, &consoleBackground);
+
+    cbw = draw(mRenderer, *mFont, 0, 0, "Current mode: %s", modsNaming[int(mEditMode)].c_str());
     return isContinue;
 }
 
@@ -126,7 +130,7 @@ void App::onKeyHandler(const SDL_Keysym &keysym)
     switch (keysym.scancode) {
     case SDL_SCANCODE_X:
         mScaleCoeffitient -= mScaleCoeffitient > 1 ? 1 : 0;
-        mFont->scaleMinus();
+        // mFont->scaleMinus();
         break;
     case SDL_SCANCODE_Z:
         if(keysym.mod == KMOD_LCTRL) {
@@ -137,7 +141,7 @@ void App::onKeyHandler(const SDL_Keysym &keysym)
             }
         } else {
             ++mScaleCoeffitient;
-            mFont->scalePlus();
+            // mFont->scalePlus();
         }
         break;
     case SDL_SCANCODE_M:
